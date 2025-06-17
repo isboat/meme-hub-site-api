@@ -7,10 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Meme.Domain.Models" Version="1.0.10" />
+    <PackageReference Include="Meme.Domain.Models" Version="1.0.14" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.6" />
     <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Meme.Hub.Site.Models\Meme.Hub.Site.Models.csproj" />
   </ItemGroup>
 
 </Project>

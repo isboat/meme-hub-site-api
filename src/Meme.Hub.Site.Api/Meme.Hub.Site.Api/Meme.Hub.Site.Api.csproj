@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Meme.Domain.Models" Version="1.0.10" />
+    <PackageReference Include="Meme.Domain.Models" Version="1.0.14" />
   </ItemGroup>
 
   <ItemGroup>

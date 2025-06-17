@@ -1,11 +1,12 @@
 ﻿using Meme.Domain.Models.TokenModels;
+using Meme.Hub.Site.Models;
 
 namespace Meme.Hub.Site.Services
 {
-    public interface ICacheService
+    public interface IDatabaseService
     {
-        Task<List<TokenDataModel>> GetLatestCreatedTokens();
-
         Task<TokenDataModel> GetTokenData(string tokenAddress);
+
+        Task<bool> SaveSubmitedSocialsToken(SubmitSocialsClaimModel submitTokenClaim);
     }
 }

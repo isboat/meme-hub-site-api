@@ -1,18 +1,19 @@
 ﻿using Meme.Domain.Models;
 using Meme.Domain.Models.TokenModels;
+using Meme.Hub.Site.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 
 namespace Meme.Hub.Site.Services
 {
-    public class CosmosDBCacheService: ICacheService
+    public class CosmosDBService : IDatabaseService
     {
         private readonly MongoClient _client;
         private readonly IMongoDatabase _database;
         private readonly string _collectionName;
+        private readonly string _submitSocialsColName = $"{nameof(SubmitSocialsClaimModel)}s";
 
-        public CosmosDBCacheService(IOptions<MongoSettings> settings)
+        public CosmosDBService(IOptions<MongoSettings> settings)
         {
             _client = new MongoClient(settings.Value.ConnectionString);
             _database = _client.GetDatabase(settings.Value.DatabaseName);
@@ -26,11 +27,11 @@ namespace Meme.Hub.Site.Services
             return await items.FirstOrDefaultAsync();
         }
 
-        public async Task<List<TokenDataModel>> GetLatestCreatedTokens()
+        public async Task<bool> SaveSubmitedSocialsToken(SubmitSocialsClaimModel submitTokenClaim)
         {
-            var items = await _database.GetCollection<TokenDataModel>(_collectionName).FindAsync(x => x.CreatedDateTime > DateTime.Now.AddHours(-5));
-
-            return items.ToList();
+            submitTokenClaim.Id = Guid.NewGuid().ToString("N");
+            await _database.GetCollection<SubmitSocialsClaimModel>(_submitSocialsColName).InsertOneAsync(submitTokenClaim);
+            return true;
         }
     }
 }
