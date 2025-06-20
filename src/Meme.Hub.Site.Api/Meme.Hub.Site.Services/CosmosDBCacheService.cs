@@ -28,7 +28,7 @@ namespace Meme.Hub.Site.Services
 
         public async Task<List<TokenDataModel>> GetLatestCreatedTokens()
         {
-            var items = await _database.GetCollection<TokenDataModel>(_collectionName).FindAsync(x => x.CreatedDateTime > DateTime.Now.AddHours(-5));
+            var items = await _database.GetCollection<TokenDataModel>(_collectionName).FindAsync(x => x.CreatedDateTime > DateTime.Now.AddDays(-5));
 
             return items.ToList();
         }

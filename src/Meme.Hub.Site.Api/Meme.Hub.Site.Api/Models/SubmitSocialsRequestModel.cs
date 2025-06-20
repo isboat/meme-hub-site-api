@@ -7,6 +7,10 @@
         public string Contract { get; set; }
         public string Twitter { get; set; }
         public string Telegram { get; set; }
+        public string Website { get; set; }
+        public string Dexscreener { get; set; }
+        public string Dextools { get; set; }
+        public string Docs { get; set; }
         public string Email { get; set; }
         public IFormFile Banner { get; set; } // File upload
         public bool Infringement { get; set; }

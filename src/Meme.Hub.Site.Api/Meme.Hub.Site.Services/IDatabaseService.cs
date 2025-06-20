@@ -8,5 +8,8 @@ namespace Meme.Hub.Site.Services
         Task<TokenDataModel> GetTokenData(string tokenAddress);
 
         Task<bool> SaveSubmitedSocialsToken(SubmitSocialsClaimModel submitTokenClaim);
+
+        Task<bool> ApproveSubmitedSocialsToken(string tokenAddress);
+        Task<ApprovedSocialsModel> GetSocialsByAddress(string tokenAddress);
     }
 }
