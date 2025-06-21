@@ -101,7 +101,7 @@ namespace Meme.Hub.Site.Services
 
         private static string CreatePath(string tokenAddr, string filename)
         {
-            return $"mediaasset/{tokenAddr}/{filename}";
+            return $"memetokenasset/{tokenAddr}/{filename}";
         }
     }
 }

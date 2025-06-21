@@ -72,12 +72,6 @@ namespace Meme.Hub.Site.Api.Controllers
                     return BadRequest($"{model.Banner.ContentType} Not allowed");
                 }
 
-                var filePath = Path.Combine("uploads", model.Banner.FileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.Banner.CopyToAsync(stream);
-                }
-
                 size = model.Banner.Length;
                 if (model.Banner.Length > 0)
                 {

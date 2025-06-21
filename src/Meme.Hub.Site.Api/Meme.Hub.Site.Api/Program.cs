@@ -38,6 +38,7 @@ namespace Meme.Hub.Site.Api
 
             builder.Services.AddSingleton<ICacheService, CosmosDBCacheService>();
             builder.Services.AddSingleton<IDatabaseService, CosmosDBService>();
+            builder.Services.AddSingleton<IStorageService, S3StorageService>();
             builder.Services.AddControllers();
 
             var app = builder.Build();
