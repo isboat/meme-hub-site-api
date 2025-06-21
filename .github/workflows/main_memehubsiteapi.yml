@@ -12,11 +12,17 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      NUGET_FEED_NAME: github
+      NUGET_FEED_URL: https://nuget.pkg.github.com/isboat/index.json
     permissions:
       contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configure Nuget feed
+        run: dotnet nuget add source --name ${{ env.NUGET_FEED_NAME }} ${{ env.NUGET_FEED_URL }}
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
