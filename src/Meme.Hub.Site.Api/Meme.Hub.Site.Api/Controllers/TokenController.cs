@@ -28,6 +28,14 @@ namespace Meme.Hub.Site.Api.Controllers
             _storageService = storageService;
         }
 
+        [HttpGet("createindex")]
+        public async Task<IActionResult> GetIndexCreation()
+        {
+            await _cacheService.CreateExpirationIndex();
+
+            return new OkResult();
+        }
+
         [HttpGet("latestunclaimed")]
         public async Task<IActionResult> Get()
         {

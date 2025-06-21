@@ -26,11 +26,24 @@ namespace Meme.Hub.Site.Services
             return await items.FirstOrDefaultAsync();
         }
 
+        public async Task CreateExpirationIndex()
+        {
+            var collection = _database.GetCollection<TokenDataModel>(_collectionName);
+            var indexKeys = Builders<TokenDataModel>.IndexKeys.Ascending(x => x.CreatedDateTime);
+            var indexOptions = new CreateIndexOptions
+            {
+                ExpireAfter = TimeSpan.FromHours(1) // documents expire 1 hour after CreatedAt
+            };
+
+            var indexModel = new CreateIndexModel<TokenDataModel>(indexKeys, indexOptions);
+            _ = await collection.Indexes.CreateOneAsync(indexModel);
+        }
+
         public async Task<List<TokenDataModel>> GetLatestCreatedTokens()
         {
-            var items = await _database.GetCollection<TokenDataModel>(_collectionName).FindAsync(x => x.CreatedDateTime > DateTime.Now.AddDays(-5));
+            var items = await _database.GetCollection<TokenDataModel>(_collectionName).FindAsync(x => true);
 
-            return items.ToList();
+            return items.ToEnumerable().OrderByDescending(x => x.CreatedDateTime).ToList();
         }
     }
 }

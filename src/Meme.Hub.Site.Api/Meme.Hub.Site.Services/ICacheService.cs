@@ -7,5 +7,7 @@ namespace Meme.Hub.Site.Services
         Task<List<TokenDataModel>> GetLatestCreatedTokens();
 
         Task<TokenDataModel> GetTokenData(string tokenAddress);
+
+        Task CreateExpirationIndex();
     }
 }
