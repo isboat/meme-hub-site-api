@@ -22,7 +22,7 @@ namespace Meme.Hub.Site.Api
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:3000");
+                                      policy.WithOrigins("http://localhost:3000", "http://localhost:5173");
                                       policy.AllowCredentials();
                                       policy.AllowAnyMethod();
                                       policy.AllowAnyHeader();
@@ -39,6 +39,7 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<ICacheService, CosmosDBCacheService>();
             builder.Services.AddSingleton<IDatabaseService, CosmosDBService>();
             builder.Services.AddSingleton<IStorageService, S3StorageService>();
+            builder.Services.AddSingleton<DataStore>();
             builder.Services.AddControllers();
 
             var app = builder.Build();
