@@ -40,11 +40,18 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IDatabaseService, CosmosDBService>();
             builder.Services.AddSingleton<IStorageService, S3StorageService>();
             builder.Services.AddSingleton<DataStore>();
+            builder.Services.AddSingleton<IAuthService,AuthService>(); // Register AuthService
+
             builder.Services.AddControllers();
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
             app.UseCors(MyAllowSpecificOrigins);

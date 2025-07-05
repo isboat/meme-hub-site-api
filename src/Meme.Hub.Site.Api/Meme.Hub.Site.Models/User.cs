@@ -12,6 +12,8 @@
         public List<string> Followers { get; set; } = new List<string>(); // List of User _id's
         public List<string> Following { get; set; } = new List<string>(); // List of User _id's
         public UserSettings Settings { get; set; } = new UserSettings();
+
+        public string? RefreshToken { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
