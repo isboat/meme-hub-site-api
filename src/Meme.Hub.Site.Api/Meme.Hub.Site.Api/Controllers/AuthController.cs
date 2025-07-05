@@ -17,9 +17,9 @@ namespace Meme.Hub.Site.Api.Controllers
             _authService = authService;
         }
 
-        // POST: /api/auth/get_or_register_user
+        // POST: /api/auth/gettoken
         [HttpPost("gettoken")]
-        public async Task<ActionResult<AuthResponseDto>> GetOrRegisterUser([FromBody] GetOrRegisterUserRequestDto request)
+        public async Task<ActionResult<AuthResponseDto>> GetOrRegisterUser([FromBody] GetTokenRequestDto request)
         {
             if (!ModelState.IsValid)
             {

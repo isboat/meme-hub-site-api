@@ -13,7 +13,7 @@ namespace Meme.Hub.Site.Services
 {
     public interface IAuthService
     {
-        Task<AuthResponseDto?> GetTokenAsync(GetOrRegisterUserRequestDto request);
+        Task<AuthResponseDto?> GetTokenAsync(GetTokenRequestDto request);
 
         Task<AuthResponseDto?> RefreshTokenAsync(string oldRefreshToken);
     }
@@ -42,8 +42,7 @@ namespace Meme.Hub.Site.Services
             // or by looking for a `.well-known/jwks.json` endpoint related to your Privy app.
             // Example: "https://your-privy-app-id.privy.io/.well-known/jwks.json" or similar.
             // Check Privy's documentation for the exact JWKS endpoint.
-            /*
-             var privyJwksUrl = _configuration["Privy:JwksUrl"] ??
+            var privyJwksUrl = _configuration["Privy:JwksUrl"] ??
                                 throw new InvalidOperationException("Privy JWKS URL is not configured.");
 
             if (_privySigningKeys == null || (DateTime.UtcNow - _lastJwksFetchTime) > _jwksCacheDuration)
@@ -67,13 +66,13 @@ namespace Meme.Hub.Site.Services
             {
                 Console.WriteLine("No Privy signing keys available.");
                 return false;
-            }*/
+            }
 
             // 2. Define Token Validation Parameters
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Privy:SigningKey"]!)), // Use the fetched keys
+                IssuerSigningKeys = _privySigningKeys, // Use the fetched keys
 
                 ValidateIssuer = true,
                 ValidIssuer = _configuration["Privy:Issuer"], // Privy's issuer (e.g., "privy.io")
@@ -96,7 +95,7 @@ namespace Meme.Hub.Site.Services
                 );
 
                 // 4. Verify Subject (Privy ID) matches the expected ID from the request
-                var privyIdClaim = principal.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var privyIdClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier )?.Value;
                 if (privyIdClaim != expectedPrivyId)
                 {
                     Console.WriteLine($"Privy ID mismatch: Expected {expectedPrivyId}, Got {privyIdClaim}");
@@ -123,7 +122,7 @@ namespace Meme.Hub.Site.Services
             }
         }
 
-        public async Task<AuthResponseDto?> GetTokenAsync(GetOrRegisterUserRequestDto request)
+        public async Task<AuthResponseDto?> GetTokenAsync(GetTokenRequestDto request)
         {
             var isPrivyTokenValid = await VerifyPrivyAccessToken(request.PrivyAccessToken, request.PrivyId);
             if (!isPrivyTokenValid)
@@ -134,6 +133,9 @@ namespace Meme.Hub.Site.Services
             var user = _dataStore.Users.FirstOrDefault(u => u.PrivyId == request.PrivyId);
             if (user == null)
             {
+                // if privy user is null, throw exception
+                if (request.PrivyUser == null) throw new Exception("Privy user object is null");
+
                 user = new User
                 {
                     PrivyId = request.PrivyId,
@@ -141,8 +143,11 @@ namespace Meme.Hub.Site.Services
                     Email = request.Email ?? $"{request.PrivyId}@privy.io",
                     ProfileImage = "https://i.pravatar.cc/150?img=default",
                     SocialLinks = new SocialLinks(),
-                    Settings = new UserSettings()
+                    Settings = new UserSettings(),
+                    CreatedAt = request.PrivyUser.CreatedAt,
+                    PrivyUserDetails = request.PrivyUser
                 };
+
                 _dataStore.Users.Add(user);
                 Console.WriteLine($"New user registered: {user.Username} ({user.PrivyId})");
             }
