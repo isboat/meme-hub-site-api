@@ -1,12 +1,8 @@
 ﻿using Meme.Hub.Site.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Meme.Hub.Site.Services
 {
+
     // A simple in-memory data store for demonstration purposes
     public class DataStore
     {

@@ -1,6 +1,12 @@
 using Meme.Domain.Models;
+using Meme.Hub.Site.Common;
 using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Services;
+using Meme.Hub.Site.Services.Repository;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Meme.Hub.Site.Api
 {
@@ -41,11 +47,15 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IStorageService, S3StorageService>();
             builder.Services.AddSingleton<DataStore>();
             builder.Services.AddSingleton<IAuthService,AuthService>(); // Register AuthService
+            builder.Services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>();
+            builder.Services.AddSingleton<IUserService, UserService>();
 
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            RegisterJwtAuth(builder);
 
             var app = builder.Build();
 
@@ -61,6 +71,53 @@ namespace Meme.Hub.Site.Api
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static void RegisterJwtAuth(WebApplicationBuilder builder)
+        {
+            var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Privy Issuer URL is not configured.");
+            var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Privy Audience URL is not configured.");
+            var jwtSigningKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Privy Audience URL is not configured.");
+
+            var isAuthenticationDisabled = true;
+            
+            if (!isAuthenticationDisabled)
+            {
+                builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy(SiteAuthorization.RequiredPolicy, policy =>
+                        policy.RequireAuthenticatedUser());
+                });
+
+                builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                        .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+
+                        {
+                            options.SaveToken = true;
+                            options.TokenValidationParameters = new()
+                            {
+                                RequireExpirationTime = true,
+                                RequireSignedTokens = true,
+                                ValidateAudience = true,
+                                ValidateIssuer = true,
+                                ValidateLifetime = true,
+
+                                // Allow for some drift in server time
+                                // (a lower value is better; we recommend two minutes or less)
+                                ClockSkew = TimeSpan.FromMinutes(5),
+
+                                ValidIssuer = jwtIssuer,
+                                ValidAudience = jwtAudience,
+                                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSigningKey))
+                            };
+                        });
+            }
+            else // authenticate anyone
+            {
+                builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddScheme<AuthenticationSchemeOptions, EmptyAuthHandler>
+                        (JwtBearerDefaults.AuthenticationScheme, opts => { });
+            }
         }
     }
 }

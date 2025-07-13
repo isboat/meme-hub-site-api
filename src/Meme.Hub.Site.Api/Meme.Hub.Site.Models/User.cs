@@ -1,4 +1,6 @@
-﻿namespace Meme.Hub.Site.Models
+﻿using Meme.Hub.Site.Models.Privy;
+
+namespace Meme.Hub.Site.Models
 {
     public class User
     {

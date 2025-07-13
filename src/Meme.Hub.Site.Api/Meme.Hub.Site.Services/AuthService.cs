@@ -11,15 +11,19 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Meme.Hub.Site.Services
 {
+
+
     public interface IAuthService
     {
         Task<AuthResponseDto?> GetTokenAsync(GetTokenRequestDto request);
 
         Task<AuthResponseDto?> RefreshTokenAsync(string oldRefreshToken);
     }
+
     public class AuthService: IAuthService
     {
         private readonly DataStore _dataStore;
+        private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient; // For fetching JWKS
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
@@ -27,12 +31,13 @@ namespace Meme.Hub.Site.Services
         private DateTime _lastJwksFetchTime = DateTime.MinValue;
         private readonly TimeSpan _jwksCacheDuration = TimeSpan.FromHours(6); // Cache duration
 
-        public AuthService(DataStore dataStore, IConfiguration configuration)
+        public AuthService(DataStore dataStore, IConfiguration configuration, IUserService userService)
         {
             _dataStore = dataStore;
             _configuration = configuration;
             _httpClient = new HttpClient();
             _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            _userService = userService;
         }
 
         private async Task<bool> VerifyPrivyAccessToken(string privyAccessToken, string expectedPrivyId)
@@ -130,7 +135,7 @@ namespace Meme.Hub.Site.Services
                 throw new UnauthorizedAccessException("Invalid or expired Privy access token.");
             }
 
-            var user = _dataStore.Users.FirstOrDefault(u => u.PrivyId == request.PrivyId);
+            var user = await _userService.GetUserByPrivyId(request.PrivyId);
             if (user == null)
             {
                 // if privy user is null, throw exception
@@ -138,6 +143,7 @@ namespace Meme.Hub.Site.Services
 
                 user = new User
                 {
+                    _id = request.PrivyId,
                     PrivyId = request.PrivyId,
                     Username = request.Username ?? $"user_{Guid.NewGuid().ToString().Substring(0, 8)}",
                     Email = request.Email ?? $"{request.PrivyId}@privy.io",
@@ -147,8 +153,8 @@ namespace Meme.Hub.Site.Services
                     CreatedAt = request.PrivyUser.CreatedAt,
                     PrivyUserDetails = request.PrivyUser
                 };
-
-                _dataStore.Users.Add(user);
+                _ = await _userService.CreateUserAsync(user);
+                
                 Console.WriteLine($"New user registered: {user.Username} ({user.PrivyId})");
             }
             else
@@ -187,6 +193,7 @@ namespace Meme.Hub.Site.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user._id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("privyId", user.PrivyId),
+                new Claim("userid", user._id),
                 new Claim("username", user.Username)
             };
 
