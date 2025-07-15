@@ -10,17 +10,21 @@ namespace Meme.Hub.Site.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataStore _dataStore;
+        private readonly IUserService _userService;
 
-        public UsersController(DataStore dataStore)
+        public UsersController(DataStore dataStore, IUserService userService)
         {
             _dataStore = dataStore;
+            _userService = userService;
         }
 
         // GET: api/users/{userId}
         [HttpGet("{userId}")]
-        public ActionResult<User> GetUser(string userId)
+        public async Task<ActionResult<User>> GetUser(string userId)
         {
-            var user = _dataStore.Users.FirstOrDefault(u => u._id == userId);
+            if(string.IsNullOrEmpty(userId)) return BadRequest(ModelState);
+
+            var user = await _userService.GetUserByPrivyId(userId); // _dataStore.Users.FirstOrDefault(u => u._id == userId);
             if (user == null)
             {
                 return NotFound("User not found.");

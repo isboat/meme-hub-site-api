@@ -49,6 +49,7 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IAuthService,AuthService>(); // Register AuthService
             builder.Services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>();
             builder.Services.AddSingleton<IUserService, UserService>();
+            builder.Services.AddSingleton<IProfileService, ProfileService>();
 
             builder.Services.AddControllers();
 
@@ -79,7 +80,7 @@ namespace Meme.Hub.Site.Api
             var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Privy Audience URL is not configured.");
             var jwtSigningKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Privy Audience URL is not configured.");
 
-            var isAuthenticationDisabled = true;
+            var isAuthenticationDisabled = false;
             
             if (!isAuthenticationDisabled)
             {

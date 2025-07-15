@@ -31,7 +31,6 @@ namespace Meme.Hub.Site.Services
 
         public Task<bool> CreateProfile(UserProfile profile)
         {
-            profile.Id = Guid.NewGuid().ToString("N");
             profile.CreatedAt = DateTime.UtcNow;
 
             _dbRepository.GetCollection<UserProfile>(collectionName).InsertOneAsync(profile);

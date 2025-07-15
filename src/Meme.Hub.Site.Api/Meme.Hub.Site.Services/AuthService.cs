@@ -134,7 +134,7 @@ namespace Meme.Hub.Site.Services
             {
                 throw new UnauthorizedAccessException("Invalid or expired Privy access token.");
             }
-
+            bool isNewUser = false; // Initialize flag
             var user = await _userService.GetUserByPrivyId(request.PrivyId);
             if (user == null)
             {
@@ -154,7 +154,8 @@ namespace Meme.Hub.Site.Services
                     PrivyUserDetails = request.PrivyUser
                 };
                 _ = await _userService.CreateUserAsync(user);
-                
+                isNewUser = true; // Set flag to true for new user
+
                 Console.WriteLine($"New user registered: {user.Username} ({user.PrivyId})");
             }
             else
@@ -173,7 +174,8 @@ namespace Meme.Hub.Site.Services
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                User = user
+                User = user,
+                IsNewUser = isNewUser
             };
         }
 

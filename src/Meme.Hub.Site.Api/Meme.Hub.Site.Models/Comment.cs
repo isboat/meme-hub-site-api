@@ -15,7 +15,8 @@ namespace Meme.Hub.Site.Models
     {
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
-        public User User { get; set; } = new User(); // The full user object from your backend
+        public User User { get; set; } = new User();
+        public bool IsNewUser { get; set; }
     }
 
     ///

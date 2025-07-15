@@ -9,7 +9,7 @@ namespace Meme.Hub.Site.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = SiteAuthorization.RequiredPolicy)]
+    [Authorize()]
     public class ProfileController : CustomBaseController
     {
         private readonly IProfileService _profileService;
@@ -56,6 +56,7 @@ namespace Meme.Hub.Site.Api.Controllers
             }
 
             request.UserId = userId;
+            request.Id = userId;
 
             try
             {
