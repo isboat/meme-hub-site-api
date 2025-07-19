@@ -1,5 +1,4 @@
-﻿using Meme.Hub.Site.Common;
-using Meme.Hub.Site.Models;
+﻿using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Models.ProfileModels;
 using Meme.Hub.Site.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +8,6 @@ namespace Meme.Hub.Site.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize()]
     public class ProfileController : CustomBaseController
     {
         private readonly IProfileService _profileService;
@@ -21,7 +19,7 @@ namespace Meme.Hub.Site.Api.Controllers
 
         // POST: /api/auth/gettoken
         [HttpGet("{id}")]
-        public async Task<ActionResult<AuthResponseDto>> GetProfile(string id)
+        public async Task<ActionResult<UserProfile>> GetProfile(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -40,13 +38,35 @@ namespace Meme.Hub.Site.Api.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetOrRegisterUser: {ex.Message}");
+                Console.WriteLine($"Error in getting profile by id: {ex.Message}");
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
+
+        // POST: /api/auth/gettoken
+        [HttpGet("kols")]
+        public async Task<ActionResult<List<UserProfile>>> GetKolProfiles()
+        {
+            try
+            {
+                var response = await _profileService.GetKolsProfile();
+                if (response == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in getting kols: {ex.Message}");
                 return StatusCode(500, new { message = "An internal server error occurred" });
             }
         }
 
         // POST: /api/auth/refresh_token
         [HttpPost("create")]
+        [Authorize()]
         public async Task<ActionResult<AuthResponseDto>> Create([FromBody] UserProfile request)
         {
             var userId = GetRequestUserId();

@@ -7,6 +7,7 @@ namespace Meme.Hub.Site.Services
     public interface IProfileService
     {
         Task<UserProfile> GetProfile(string id);
+        Task<List<UserProfile>> GetKolsProfile();
 
         Task<bool> CreateProfile(UserProfile profile);
     }
@@ -27,6 +28,14 @@ namespace Meme.Hub.Site.Services
 
             var profile = (await _dbRepository.GetData(collectionName, filter)).FirstOrDefault();
             return profile;
+        }
+
+        public async Task<List<UserProfile>> GetKolsProfile()
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.ProfileType, ProfileType.Kol);
+
+            var profiles = (await _dbRepository.GetData(collectionName, filter));
+            return profiles.ToList();
         }
 
         public Task<bool> CreateProfile(UserProfile profile)

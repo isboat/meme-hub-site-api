@@ -1,5 +1,6 @@
 ﻿using Meme.Hub.Site.Api.Models;
 using Meme.Hub.Site.Models;
+using Meme.Hub.Site.Services.Tokens;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,13 @@ namespace Meme.Hub.Site.Api.Controllers
     [Route("api/[controller]")]
     public class MemeTokenController : ControllerBase
     {
+        private readonly IMemeTokenService memeTokenService;
+
+        public MemeTokenController(IMemeTokenService memeTokenService)
+        {
+            this.memeTokenService = memeTokenService;
+        }
+
         // --- Dummy Data (replace with database calls in a real application) ---
         private static readonly List<TickerItem> _tickerData = new List<TickerItem>
         {
@@ -126,6 +134,17 @@ namespace Meme.Hub.Site.Api.Controllers
         {
             // In a real app, you'd fetch this from a service or database
             return Ok(_unclaimedTokensData);
+        }
+
+
+
+        // GET: /api/token/latestunclaimed
+        [HttpGet("trending")]
+        public async Task<ActionResult> GetLatestTrendingTokens()
+        {
+            // In a real app, you'd fetch this from a service or database
+            var data = await memeTokenService.GetTrendingTokens();
+            return Ok(data);
         }
 
         // You might have other controllers for Auth, Users, Posts etc.

@@ -3,6 +3,7 @@ using Meme.Hub.Site.Common;
 using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Services;
 using Meme.Hub.Site.Services.Repository;
+using Meme.Hub.Site.Services.Tokens;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -50,6 +51,7 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>();
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
+            builder.Services.AddSingleton<IMemeTokenService, MemeTokenService>();
 
             builder.Services.AddControllers();
 
