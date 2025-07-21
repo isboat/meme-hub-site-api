@@ -2,7 +2,9 @@
 using Meme.Domain.Models;
 using Meme.Domain.Models.TokenModels;
 using Meme.Hub.Site.Models;
+using Meme.Hub.Site.Models.ProfileModels;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Meme.Hub.Site.Services.Repository

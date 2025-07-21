@@ -1,5 +1,6 @@
 ﻿using Meme.Hub.Site.Models.ProfileModels;
 using Meme.Hub.Site.Services.Repository;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Meme.Hub.Site.Services
@@ -10,6 +11,10 @@ namespace Meme.Hub.Site.Services
         Task<List<UserProfile>> GetKolsProfile();
 
         Task<bool> CreateProfile(UserProfile profile);
+
+        Task AddFollower(string id, string followerId);
+
+        Task RemoveFollower(string id, string followerId);
     }
 
     public class ProfileService : IProfileService
@@ -44,6 +49,38 @@ namespace Meme.Hub.Site.Services
 
             _dbRepository.GetCollection<UserProfile>(collectionName).InsertOneAsync(profile);
             return Task.FromResult(true);
+        }
+
+        public async Task AddFollower(string id, string followerId)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
+
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+            var profile = collection.Find(x => x.Id == id).FirstOrDefault();
+            profile.Followers ??= [];
+
+            if(!profile.Followers.Contains(followerId)) profile.Followers.Add(followerId);
+
+            await UpdateFollows(id, profile, collection);
+        }
+
+        public async Task RemoveFollower(string id, string followerId)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
+
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+            var profile = collection.Find(x => x.Id == id).FirstOrDefault();
+            profile.Followers ??= [];
+
+            if(profile.Followers.Remove(followerId)) await UpdateFollows(id, profile, collection);
+        }
+
+        private async Task UpdateFollows(string id, UserProfile profile, IMongoCollection<UserProfile> collection)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
+            var update = Builders<UserProfile>.Update.Set(u => u.Followers, profile.Followers);
+
+            var result = await collection.UpdateOneAsync(filter, update);
         }
     }
 }

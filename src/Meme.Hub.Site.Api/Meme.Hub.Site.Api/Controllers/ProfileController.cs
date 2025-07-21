@@ -89,5 +89,51 @@ namespace Meme.Hub.Site.Api.Controllers
                 return StatusCode(500, new { message = "An internal server error occurred while creating profile." });
             }
         }
+
+        // POST: /api/auth/refresh_token
+        [HttpPost("{id}/follow")]
+        [Authorize()]
+        public async Task<ActionResult<AuthResponseDto>> Follow(string id)
+        {
+            var followerId = GetRequestUserId();
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(followerId))
+            {
+                return BadRequest(new { message = "ID or followerId is required." });
+            }
+
+            try
+            {
+                await _profileService.AddFollower(id, followerId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding Follower: {ex.Message}");
+                return StatusCode(500, new { message = "An internal server error occurred while adding Follower." });
+            }
+        }
+
+        // POST: /api/auth/refresh_token
+        [HttpPost("{id}/unfollow")]
+        [Authorize()]
+        public async Task<ActionResult<AuthResponseDto>> UnFollow(string id)
+        {
+            var followerId = GetRequestUserId();
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(followerId))
+            {
+                return BadRequest(new { message = "ID or followerId is required." });
+            }
+
+            try
+            {
+                await _profileService.RemoveFollower(id, followerId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error RemoveFollower: {ex.Message}");
+                return StatusCode(500, new { message = "An internal server error occurred while RemoveFollower." });
+            }
+        }
     }
 }
