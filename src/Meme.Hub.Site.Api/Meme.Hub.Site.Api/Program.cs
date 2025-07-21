@@ -29,7 +29,7 @@ namespace Meme.Hub.Site.Api
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:3000", "http://localhost:5173");
+                                      policy.WithOrigins("https://delightful-beach-04563c903.2.azurestaticapps.net","http://localhost:3000", "http://localhost:5173");
                                       policy.AllowCredentials();
                                       policy.AllowAnyMethod();
                                       policy.AllowAnyHeader();
