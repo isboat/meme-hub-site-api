@@ -1,4 +1,5 @@
-﻿using Meme.Hub.Site.Models;
+﻿using Meme.Hub.Site.Api.Models;
+using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Models.ProfileModels;
 using Meme.Hub.Site.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,15 @@ namespace Meme.Hub.Site.Api.Controllers
     public class ProfileController : CustomBaseController
     {
         private readonly IProfileService _profileService;
+        private readonly IStorageService _storageService;
 
-        public ProfileController(IProfileService profileService)
+        private const long UploadMaxSixe = 3_000_000_000;
+        private const string allowedImageFileExt = "image/jpeg,image/png,image/gif";
+
+        public ProfileController(IProfileService profileService, IStorageService storageService)
         {
             _profileService = profileService;
+            _storageService = storageService;
         }
 
         // POST: /api/auth/gettoken
@@ -134,6 +140,50 @@ namespace Meme.Hub.Site.Api.Controllers
                 Console.WriteLine($"Error RemoveFollower: {ex.Message}");
                 return StatusCode(500, new { message = "An internal server error occurred while RemoveFollower." });
             }
+        }
+
+        [HttpPut("update-with-image")]
+        [Authorize()]
+        public async Task<ActionResult> UpdateProfileRequest([FromForm] UpdateProfileRequestModel model)
+        {
+            var userId = GetRequestUserId();
+            var bannerStoragePath = "";
+            long size = 0;
+            var fileName = "";
+
+            if (model.ProfileImageFile != null && model.ProfileImageFile.Length > 0)
+            {
+                bool isImageFile = allowedImageFileExt.Contains(model.ProfileImageFile.ContentType);
+                if (!isImageFile)
+                {
+                    return BadRequest($"{model.ProfileImageFile.ContentType} Not allowed");
+                }
+
+                if(model.ProfileImageFile.Length > UploadMaxSixe)
+                {
+                    return BadRequest($"Profile image too large");
+                }
+
+                size = model.ProfileImageFile.Length;
+                if (model.ProfileImageFile.Length > 0)
+                {
+                    fileName = model.ProfileImageFile.FileName.ToLowerInvariant();
+                    await using var stream = model.ProfileImageFile.OpenReadStream();
+                    bannerStoragePath = await _storageService.UploadAsync(userId, fileName, stream);
+                }
+            }
+
+            await _profileService.UpdateProfile(userId, new UserProfile
+            {
+                Description = model.Bio,
+                ProfileName = model.Username,
+                ProfileImage = bannerStoragePath,
+                Language = model.Language,
+                Location = model.Location,
+                LastUpdatedAt = DateTime.UtcNow
+            });
+
+            return Ok("Form submitted successfully!");
         }
     }
 }

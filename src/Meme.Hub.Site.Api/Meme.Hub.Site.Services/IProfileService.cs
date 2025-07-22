@@ -15,6 +15,7 @@ namespace Meme.Hub.Site.Services
         Task AddFollower(string id, string followerId);
 
         Task RemoveFollower(string id, string followerId);
+        Task UpdateProfile(string userId, UserProfile userProfile);
     }
 
     public class ProfileService : IProfileService
@@ -75,12 +76,32 @@ namespace Meme.Hub.Site.Services
             if(profile.Followers.Remove(followerId)) await UpdateFollows(id, profile, collection);
         }
 
+        public async Task UpdateProfile(string userId, UserProfile userProfile)
+        {
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, userId);
+            var update = Builders<UserProfile>.Update
+                .Set(u => u.Description, userProfile.Description)
+                .Set(u => u.ProfileName, userProfile.ProfileName)
+                .Set(u => u.Location, userProfile.Location)
+                .Set(u => u.Language, userProfile.Language)
+                .Set(u => u.LastUpdatedAt, userProfile.LastUpdatedAt);
+
+            if(!string.IsNullOrEmpty(userProfile.ProfileImage))
+            {
+                update = update.Set(u => u.ProfileImage, userProfile.ProfileImage);
+            }
+
+            _ = await collection.UpdateOneAsync(filter, update);
+        }
+
         private async Task UpdateFollows(string id, UserProfile profile, IMongoCollection<UserProfile> collection)
         {
             var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
             var update = Builders<UserProfile>.Update.Set(u => u.Followers, profile.Followers);
 
-            var result = await collection.UpdateOneAsync(filter, update);
+            _ = await collection.UpdateOneAsync(filter, update);
         }
     }
 }
