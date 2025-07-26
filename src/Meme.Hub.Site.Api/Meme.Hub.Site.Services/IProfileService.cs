@@ -1,4 +1,5 @@
-﻿using Meme.Hub.Site.Models.ProfileModels;
+﻿using Amazon.Runtime.Internal;
+using Meme.Hub.Site.Models.ProfileModels;
 using Meme.Hub.Site.Services.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,6 +17,8 @@ namespace Meme.Hub.Site.Services
 
         Task RemoveFollower(string id, string followerId);
         Task UpdateProfile(string userId, UserProfile userProfile);
+
+        Task EnableVerified(string userId);
     }
 
     public class ProfileService : IProfileService
@@ -47,9 +50,23 @@ namespace Meme.Hub.Site.Services
         public Task<bool> CreateProfile(UserProfile profile)
         {
             profile.CreatedAt = DateTime.UtcNow;
+            GenerateDiscountCode(profile);
 
             _dbRepository.GetCollection<UserProfile>(collectionName).InsertOneAsync(profile);
             return Task.FromResult(true);
+        }
+
+        private void GenerateDiscountCode(UserProfile request)
+        {
+            if (request != null)
+            {
+                var guid = Guid.NewGuid().ToString("N").Replace("-", "");
+                var code = string.IsNullOrEmpty(request?.ProfileName)
+                    ? guid[..8]
+                    : request.ProfileName.Replace(" ", "").Substring(0, 5) + guid.Substring(0, 3);
+
+                request!.DiscountCode = code.ToUpperInvariant();
+            }
         }
 
         public async Task AddFollower(string id, string followerId)
@@ -78,6 +95,8 @@ namespace Meme.Hub.Site.Services
 
         public async Task UpdateProfile(string userId, UserProfile userProfile)
         {
+            // to be removed
+            GenerateDiscountCode(userProfile);
             var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
 
             var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, userId);
@@ -86,12 +105,24 @@ namespace Meme.Hub.Site.Services
                 .Set(u => u.ProfileName, userProfile.ProfileName)
                 .Set(u => u.Location, userProfile.Location)
                 .Set(u => u.Language, userProfile.Language)
-                .Set(u => u.LastUpdatedAt, userProfile.LastUpdatedAt);
+                .Set(u => u.LastUpdatedAt, userProfile.LastUpdatedAt)
+                .Set("DiscountCode", userProfile.DiscountCode);
+
 
             if(!string.IsNullOrEmpty(userProfile.ProfileImage))
             {
                 update = update.Set(u => u.ProfileImage, userProfile.ProfileImage);
             }
+
+            _ = await collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task EnableVerified(string userId)
+        {
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, userId);
+            var update = Builders<UserProfile>.Update.Set("Verified", true);
 
             _ = await collection.UpdateOneAsync(filter, update);
         }

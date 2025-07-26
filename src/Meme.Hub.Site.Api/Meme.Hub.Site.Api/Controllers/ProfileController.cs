@@ -185,5 +185,16 @@ namespace Meme.Hub.Site.Api.Controllers
 
             return Ok("Form submitted successfully!");
         }
+
+        [HttpPut("enable-verified")]
+        [Authorize()]
+        public async Task<ActionResult> EnableVerified()
+        {
+            var userId = GetRequestUserId();
+
+            await _profileService.EnableVerified(userId);
+
+            return Ok("Form submitted successfully!");
+        }
     }
 }
