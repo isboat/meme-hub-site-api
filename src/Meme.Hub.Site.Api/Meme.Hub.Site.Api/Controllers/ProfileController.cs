@@ -179,9 +179,33 @@ namespace Meme.Hub.Site.Api.Controllers
                 ProfileName = model.Username,
                 ProfileImage = bannerStoragePath,
                 Language = model.Language,
-                Location = model.Location,
-                LastUpdatedAt = DateTime.UtcNow
+                Location = model.Location
             });
+
+            return Ok("Form submitted successfully!");
+        }
+
+        [HttpPut("update-socials")]
+        [Authorize()]
+        public async Task<ActionResult> UpdateSocialsRequest([FromForm] UpdateSocialsRequestModel model)
+        {
+            var userId = GetRequestUserId();
+            // Validate the model state
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var up = new UserProfile
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    { "x", model.X },
+                    { "telegram", model.Telegram },
+                    { "youtube", model.Youtube },
+                    { "instagram", model.Instagram }
+                }
+            };
+            await _profileService.UpdateProfile(userId, up);
 
             return Ok("Form submitted successfully!");
         }

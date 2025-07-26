@@ -96,22 +96,40 @@ namespace Meme.Hub.Site.Services
         public async Task UpdateProfile(string userId, UserProfile userProfile)
         {
             // to be removed
-            GenerateDiscountCode(userProfile);
+            // GenerateDiscountCode(userProfile);
             var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
 
             var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, userId);
             var update = Builders<UserProfile>.Update
-                .Set(u => u.Description, userProfile.Description)
-                .Set(u => u.ProfileName, userProfile.ProfileName)
-                .Set(u => u.Location, userProfile.Location)
-                .Set(u => u.Language, userProfile.Language)
-                .Set(u => u.LastUpdatedAt, userProfile.LastUpdatedAt)
-                .Set("DiscountCode", userProfile.DiscountCode);
+                .Set(u => u.LastUpdatedAt, DateTime.UtcNow);
 
-
-            if(!string.IsNullOrEmpty(userProfile.ProfileImage))
+            if(!string.IsNullOrEmpty(userProfile.Description))
+            {
+                update = update.Set(u => u.Description, userProfile.Description);
+            }
+            if(!string.IsNullOrEmpty(userProfile.ProfileName))
+            {
+                update = update.Set(u => u.ProfileName, userProfile.ProfileName);
+            }
+            if(!string.IsNullOrEmpty(userProfile.Location))
+            {
+                update = update.Set(u => u.Location, userProfile.Location);
+            }
+            if(!string.IsNullOrEmpty(userProfile.Language))
+            {
+                update = update.Set(u => u.Language, userProfile.Language);
+            }
+            if(!string.IsNullOrEmpty(userProfile.DiscountCode))
+            {
+                update = update.Set("DiscountCode", userProfile.DiscountCode);
+            }
+            if (!string.IsNullOrEmpty(userProfile.ProfileImage))
             {
                 update = update.Set(u => u.ProfileImage, userProfile.ProfileImage);
+            }
+            if(userProfile.Metadata != null && userProfile.Metadata.Count > 0)
+            {
+                update = update.Set(u => u.Metadata, userProfile.Metadata);
             }
 
             _ = await collection.UpdateOneAsync(filter, update);

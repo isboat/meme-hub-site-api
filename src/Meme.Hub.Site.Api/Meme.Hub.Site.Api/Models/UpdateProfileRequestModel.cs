@@ -8,4 +8,12 @@
         public string Language { get; set; }
         public IFormFile? ProfileImageFile { get; set; } // File upload
     }
+
+    public class UpdateSocialsRequestModel
+    {
+        public string X { get; set; }
+        public string Telegram { get; set; }
+        public string Youtube { get; set; }
+        public string Instagram { get; set; }
+    }
 }
