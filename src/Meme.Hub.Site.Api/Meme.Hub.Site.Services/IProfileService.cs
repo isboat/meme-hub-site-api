@@ -19,6 +19,8 @@ namespace Meme.Hub.Site.Services
         Task UpdateProfile(string userId, UserProfile userProfile);
 
         Task EnableVerified(string userId);
+        Task<List<UserProfile>> GetFollowers(string profileId);
+        Task<List<UserProfile>> GetFollowing(string profileId);
     }
 
     public class ProfileService : IProfileService
@@ -36,6 +38,11 @@ namespace Meme.Hub.Site.Services
             var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
 
             var profile = (await _dbRepository.GetData(collectionName, filter)).FirstOrDefault();
+
+            var followingFilter = Builders<UserProfile>.Filter.Where(u => u.Followers.Contains(profile.Id));
+            var following = (await _dbRepository.GetData(collectionName, followingFilter)).ToList();
+            profile.Following = following.Select(x => x.Id).ToList();
+
             return profile;
         }
 
@@ -151,6 +158,32 @@ namespace Meme.Hub.Site.Services
             var update = Builders<UserProfile>.Update.Set(u => u.Followers, profile.Followers);
 
             _ = await collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task<List<UserProfile>> GetFollowers(string profileId)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, profileId);
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+            var profile = collection.Find(filter).FirstOrDefault();
+            if (profile == null || profile.Followers == null || !profile.Followers.Any())
+            {
+                return await Task.FromResult(new List<UserProfile>());
+            }
+            var followersFilter = Builders<UserProfile>.Filter.In(u => u.Id, profile.Followers);
+            return (await _dbRepository.GetData(collectionName, followersFilter)).ToList();
+        }
+
+        public async Task<List<UserProfile>> GetFollowing(string profileId)
+        {
+            var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, profileId);
+            var collection = _dbRepository.GetCollection<UserProfile>(collectionName);
+            var profile = collection.Find(filter).FirstOrDefault();
+            if (profile == null)
+            {
+                return await Task.FromResult(new List<UserProfile>());
+            }
+            var followingFilter = Builders<UserProfile>.Filter.Where(u => u.Followers.Contains(profile.Id));
+            return (await _dbRepository.GetData(collectionName, followingFilter)).ToList();
         }
     }
 }

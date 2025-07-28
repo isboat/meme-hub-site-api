@@ -220,5 +220,51 @@ namespace Meme.Hub.Site.Api.Controllers
 
             return Ok("Form submitted successfully!");
         }
+
+        [HttpGet("{profileId}/followers")]
+        public async Task<ActionResult> GetFollowers(string profileId)
+        {
+            if (string.IsNullOrEmpty(profileId))
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var response = await _profileService.GetFollowers(profileId);
+                if (response == null)
+                {
+                    return NotFound();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in getting followers: {ex.Message}");
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
+
+        [HttpGet("{profileId}/following")]
+        public async Task<ActionResult> GetFollowing(string profileId)
+        {
+            if (string.IsNullOrEmpty(profileId))
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var response = await _profileService.GetFollowing(profileId);
+                if (response == null)
+                {
+                    return NotFound();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in getting following: {ex.Message}");
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
     }
 }
