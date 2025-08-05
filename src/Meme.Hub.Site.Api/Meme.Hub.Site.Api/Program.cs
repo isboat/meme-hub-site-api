@@ -2,6 +2,8 @@ using Meme.Domain.Models;
 using Meme.Hub.Site.Common;
 using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Services;
+using Meme.Hub.Site.Services.Interfaces;
+using Meme.Hub.Site.Services.Providers.Tokens;
 using Meme.Hub.Site.Services.Repository;
 using Meme.Hub.Site.Services.Tokens;
 using Microsoft.AspNetCore.Authentication;
@@ -29,7 +31,7 @@ namespace Meme.Hub.Site.Api
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("https://delightful-beach-04563c903.2.azurestaticapps.net","http://localhost:3000", "http://localhost:5173");
+                                      policy.WithOrigins("https://delightful-beach-04563c903.2.azurestaticapps.net", "http://localhost:3000", "http://localhost:5173");
                                       policy.AllowCredentials();
                                       policy.AllowAnyMethod();
                                       policy.AllowAnyHeader();
@@ -47,11 +49,14 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IDatabaseService, CosmosDBService>();
             builder.Services.AddSingleton<IStorageService, S3StorageService>();
             builder.Services.AddSingleton<DataStore>();
-            builder.Services.AddSingleton<IAuthService,AuthService>(); // Register AuthService
+            builder.Services.AddSingleton<IAuthService, AuthService>(); // Register AuthService
             builder.Services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>();
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
             builder.Services.AddSingleton<IMemeTokenService, MemeTokenService>();
+
+            RegisterHttpClientServices(builder);
+            
 
             builder.Services.AddControllers();
 
@@ -74,6 +79,23 @@ namespace Meme.Hub.Site.Api
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static void RegisterHttpClientServices(WebApplicationBuilder builder)
+        {
+            // Register the MoonTokProvider with HttpClient
+            builder.Services.AddHttpClient<ITokenDataProvider, MoonTokProvider>(client =>
+            {
+                //get base address from configuration
+                var baseAddress = builder.Configuration["MoonTok:BaseUrl"];
+                if (string.IsNullOrEmpty(baseAddress))
+                {
+                    //throw new InvalidOperationException("MoonTok Base URL is not configured.");
+                }
+                // Set the base address and default headers for the HttpClient
+                client.BaseAddress = new Uri("https://apiv2.moontok.io/api");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
         }
 
         private static void RegisterJwtAuth(WebApplicationBuilder builder)

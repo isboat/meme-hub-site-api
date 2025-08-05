@@ -1,7 +1,7 @@
 ﻿using Meme.Hub.Site.Api.Models;
 using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Models.ProfileModels;
-using Meme.Hub.Site.Services;
+using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

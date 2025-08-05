@@ -1,13 +1,10 @@
 ﻿namespace Meme.Hub.Site.Models.ProfileModels
 {
-    public class UserProfile
+    public class BaseProfile
     {
-        public string Id { get; set; }
-        public ProfileType? ProfileType { get; set; }
-        public string UserId { get; set; }
+        public string? Id { get; set; }
+        public string? UserId { get; set; }
         public string? ProfileName { get; set; }
-
-        public string? DiscountCode { get; set; }
 
         public bool Verified { get; set; }
 
@@ -19,15 +16,6 @@
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
 
-        public Dictionary<string,string> Metadata { get; set; }
-        public string Language { get; set; }
-        public string Location { get; set; }
-    }
-
-    public enum ProfileType
-    {
-        Lover,
-        Kol,
-        Dev
+        public Dictionary<string, string> Metadata { get; set; }
     }
 }

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Meme.Hub.Site.Models\Meme.Hub.Site.Models.csproj" />
+    <ProjectReference Include="..\Meme.Hub.Site.Services.Providers\Meme.Hub.Site.Services.Providers.csproj" />
   </ItemGroup>
 
 </Project>

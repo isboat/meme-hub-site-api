@@ -1,4 +1,4 @@
-﻿namespace Meme.Hub.Site.Services
+﻿namespace Meme.Hub.Site.Services.Interfaces
 {
     public interface IStorageService
     {

@@ -4,7 +4,7 @@ using Meme.Hub.Site.Services.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Meme.Hub.Site.Services
+namespace Meme.Hub.Site.Services.Interfaces
 {
     public interface IProfileService
     {
@@ -50,7 +50,7 @@ namespace Meme.Hub.Site.Services
         {
             var filter = Builders<UserProfile>.Filter.Eq(u => u.ProfileType, ProfileType.Kol);
 
-            var profiles = (await _dbRepository.GetData(collectionName, filter));
+            var profiles = await _dbRepository.GetData(collectionName, filter);
             return profiles.ToList();
         }
 

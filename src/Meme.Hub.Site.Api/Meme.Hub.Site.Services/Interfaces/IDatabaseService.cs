@@ -1,7 +1,7 @@
 ﻿using Meme.Domain.Models.TokenModels;
 using Meme.Hub.Site.Models;
 
-namespace Meme.Hub.Site.Services
+namespace Meme.Hub.Site.Services.Interfaces
 {
     public interface IDatabaseService
     {

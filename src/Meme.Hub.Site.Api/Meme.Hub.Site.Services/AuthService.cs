@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Meme.Hub.Site.Services.Interfaces;
 
 namespace Meme.Hub.Site.Services
 {

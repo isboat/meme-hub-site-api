@@ -1,6 +1,6 @@
 ﻿using Meme.Hub.Site.Api.Models;
 using Meme.Hub.Site.Models;
-using Meme.Hub.Site.Services.Tokens;
+using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -147,6 +147,22 @@ namespace Meme.Hub.Site.Api.Controllers
             return Ok(data);
         }
 
-        // You might have other controllers for Auth, Users, Posts etc.
+        // GET: /api/token/latestunclaimed
+        [HttpGet("networks")]
+        public async Task<ActionResult> GetTokenNetworks()
+        {
+            // In a real app, you'd fetch this from a service or database
+            var data = await memeTokenService.GetTokenNetworks();
+            return Ok(data);
+        }
+
+        // GET: /api/token/latestunclaimed
+        [HttpGet("{network}/tokens")]
+        public async Task<ActionResult> GetTokenNetworks(string network)
+        {
+            // In a real app, you'd fetch this from a service or database
+            var data = await memeTokenService.GetCoinsByNetwork(network);
+            return Ok(data);
+        }
     }
 }

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Meme.Hub.Site.Common\Meme.Hub.Site.Common.csproj" />
     <ProjectReference Include="..\Meme.Hub.Site.Models\Meme.Hub.Site.Models.csproj" />
+    <ProjectReference Include="..\Meme.Hub.Site.Services.Providers\Meme.Hub.Site.Services.Providers.csproj" />
     <ProjectReference Include="..\Meme.Hub.Site.Services\Meme.Hub.Site.Services.csproj" />
   </ItemGroup>
 

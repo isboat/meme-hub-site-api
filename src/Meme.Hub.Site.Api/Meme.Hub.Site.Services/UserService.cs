@@ -1,4 +1,5 @@
 ﻿using Meme.Hub.Site.Models;
+using Meme.Hub.Site.Services.Interfaces;
 using Meme.Hub.Site.Services.Repository;
 using MongoDB.Driver;
 

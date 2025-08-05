@@ -1,5 +1,6 @@
 ﻿using Meme.Domain.Models;
 using Meme.Domain.Models.TokenModels;
+using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json;

@@ -1,5 +1,6 @@
 ﻿using Meme.Hub.Site.Models;
 using Meme.Hub.Site.Services;
+using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

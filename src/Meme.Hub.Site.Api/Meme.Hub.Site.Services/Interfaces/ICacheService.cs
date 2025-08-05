@@ -1,6 +1,6 @@
 ﻿using Meme.Domain.Models.TokenModels;
 
-namespace Meme.Hub.Site.Services
+namespace Meme.Hub.Site.Services.Interfaces
 {
     public interface ICacheService
     {

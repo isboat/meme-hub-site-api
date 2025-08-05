@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meme.Hub.Site.Models", "Mem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meme.Hub.Site.Common", "Meme.Hub.Site.Common\Meme.Hub.Site.Common.csproj", "{371C3A83-2EF7-4710-A361-E4D44BBEE589}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meme.Hub.Site.Services.Providers", "Meme.Hub.Site.Services.Providers\Meme.Hub.Site.Services.Providers.csproj", "{4C067122-AC42-4AC4-B9D7-EA466BBB5C77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,15 @@ Global
 		{371C3A83-2EF7-4710-A361-E4D44BBEE589}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{371C3A83-2EF7-4710-A361-E4D44BBEE589}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{371C3A83-2EF7-4710-A361-E4D44BBEE589}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C067122-AC42-4AC4-B9D7-EA466BBB5C77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C067122-AC42-4AC4-B9D7-EA466BBB5C77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C067122-AC42-4AC4-B9D7-EA466BBB5C77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C067122-AC42-4AC4-B9D7-EA466BBB5C77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AED37F35-9FA6-4797-BA0B-8A3E3345A553}
 	EndGlobalSection
 EndGlobal

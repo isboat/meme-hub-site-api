@@ -1,26 +1,39 @@
-﻿using Meme.Hub.Site.Models.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Meme.Domain.Models.TokenModels;
+using Meme.Hub.Site.Models.MemeTokens;
+using Meme.Hub.Site.Services.Interfaces;
+using Meme.Hub.Site.Services.Providers.Tokens;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace Meme.Hub.Site.Services.Tokens
 {
-    public interface IMemeTokenService
-    {
-        Task<JsonObject> GetTrendingTokens();
-    }
     public class MemeTokenService : IMemeTokenService
     {
-        public async Task<JsonObject> GetTrendingTokens()
+        private readonly ITokenDataProvider _tokenDataProvider;
+
+        public MemeTokenService(ITokenDataProvider tokenDataProvider)
         {
-            using HttpClient client = new HttpClient();
-            var response = await client.GetAsync("https://apiv2.moontok.io/api/common/trending");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<JsonObject>();
+            _tokenDataProvider = tokenDataProvider;
+        }
+
+        public Task<JsonObject> GetCoinDataByIdAsync(string coinId)
+        {
+            return _tokenDataProvider.GetCoinDataByIdAsync(coinId);
+        }
+
+        public Task<IEnumerable<TokenDetailsDto>> GetCoinsByNetwork(string network)
+        {
+            return _tokenDataProvider.GetCoinsByNetwork(network);
+        }
+
+        public Task<IEnumerable<TokenChains>> GetTokenNetworks()
+        {
+            return _tokenDataProvider.GetTokenNetworks();
+        }
+
+        public Task<IEnumerable<TokenDataModel>> GetTrendingTokens()
+        {
+            return _tokenDataProvider.GetTrendingTokens();
         }
     }
 }

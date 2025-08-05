@@ -6,6 +6,7 @@ using Amazon;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Meme.Hub.Site.Models;
+using Meme.Hub.Site.Services.Interfaces;
 
 namespace Meme.Hub.Site.Services
 {

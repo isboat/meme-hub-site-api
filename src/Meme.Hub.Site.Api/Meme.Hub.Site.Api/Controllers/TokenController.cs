@@ -1,13 +1,14 @@
+using Meme.Domain.Models.TokenModels;
 using Meme.Hub.Site.Api.Models;
 using Meme.Hub.Site.Models;
-using Meme.Hub.Site.Services;
+using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
 
 namespace Meme.Hub.Site.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TokenController : ControllerBase
     {
 
@@ -44,12 +45,16 @@ namespace Meme.Hub.Site.Api.Controllers
             return new OkObjectResult(dbEleme);
         }
 
-        [HttpGet("details/{tokenAddress}")]
+        [HttpGet("{tokenAddress}")]
         public async Task<IActionResult> Get(string tokenAddress)
         {
             if (string.IsNullOrWhiteSpace(tokenAddress)) return BadRequest();
 
             var dbEleme = await _cacheService.GetTokenData(tokenAddress);
+            if (dbEleme == null)
+            {
+                return NotFound(new { message = "Token not found" });
+            }
 
             return new OkObjectResult(dbEleme);
         }
