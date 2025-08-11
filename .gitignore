@@ -404,3 +404,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+src/Meme.Hub.Site.Api/Meme.Hub.Site.Api/appsettings.json
