@@ -29,6 +29,10 @@ namespace Meme.Hub.Site.Api.Controllers
             _storageService = storageService;
         }
 
+        /// <summary>
+        /// get all tokens
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("createindex")]
         public async Task<IActionResult> GetIndexCreation()
         {
@@ -37,8 +41,29 @@ namespace Meme.Hub.Site.Api.Controllers
             return new OkResult();
         }
 
+        /// <summary>
+        /// get latest created tokens for a specific launch platform
+        /// </summary>
+        /// <param name="launchPlatform"></param>
+        /// <returns></returns>
+        [HttpGet("latestcreated/{launchPlatform}")]
+        public async Task<IActionResult> GetLatestCreatedTokens(string launchPlatform)
+        {
+            switch (launchPlatform)
+            {
+                case "pumpfun":
+                    var dbEleme = await _cacheService.GetLatestCreatedTokens();
+                    return new OkObjectResult(dbEleme);
+                default:
+                    break;
+            }
+
+            return new OkObjectResult(new List<TokenDataModel>());
+
+        }
+
         [HttpGet("latestunclaimed")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string platform)
         {
             var dbEleme = await _cacheService.GetLatestCreatedTokens();
 
@@ -46,7 +71,7 @@ namespace Meme.Hub.Site.Api.Controllers
         }
 
         [HttpGet("{tokenAddress}")]
-        public async Task<IActionResult> Get(string tokenAddress)
+        public async Task<IActionResult> GetTokenDetails(string tokenAddress)
         {
             if (string.IsNullOrWhiteSpace(tokenAddress)) return BadRequest();
 
@@ -58,72 +83,5 @@ namespace Meme.Hub.Site.Api.Controllers
 
             return new OkObjectResult(dbEleme);
         }
-
-        [HttpGet("socials/{tokenAddress}")]
-        public async Task<IActionResult> GetSocials(string tokenAddress)
-        {
-            if (string.IsNullOrWhiteSpace(tokenAddress)) return BadRequest();
-
-            var dbEleme = await _databaseService.GetSocialsByAddress(tokenAddress);
-
-            return new OkObjectResult(dbEleme);
-        }
-
-        [HttpPost("submit-socials")]
-        public async Task<ActionResult> SubmitSocials([FromForm] SubmitSocialsRequestModel model)
-        {
-
-            var bannerStoragePath = "";
-            long size = 0;
-            var fileName = "";
-
-            if (model.Banner != null && model.Banner.Length > 0)
-            {
-                bool isImageFile = allowedImageFileExt.Contains(model.Banner.ContentType);
-                if (!isImageFile)
-                {
-                    return BadRequest($"{model.Banner.ContentType} Not allowed");
-                }
-
-                size = model.Banner.Length;
-                if (model.Banner.Length > 0)
-                {
-                    fileName = model.Banner.FileName.ToLowerInvariant();
-                    await using var stream = model.Banner.OpenReadStream();
-                    bannerStoragePath = await _storageService.UploadAsync(model.Contract, fileName, stream);
-                }
-            }
-
-            _ = _databaseService.SaveSubmitedSocialsToken(new SubmitSocialsClaimModel
-            {
-                AssertOwned = true,
-                Contract = model.Contract,
-                Email = model.Email,
-                Infringement = model.Infringement,
-                Telegram = model.Telegram,
-                Ticker = model.Ticker,
-                TokenName = model.TokenName,
-                Twitter = model.Twitter,
-                Dexscreener = model.Dexscreener,
-                Dextools = model.Dextools,
-                Docs = model.Docs,
-                Website = model.Website,
-                BannerUrl = bannerStoragePath,
-                TokenData = await _cacheService.GetTokenData(model.Contract),
-            });
-
-            _ = _databaseService.ApproveSubmitedSocialsToken(model.Contract);
-
-            return Ok("Form submitted successfully!");
-        }
-
-        [HttpGet("approve-socials/{addr}")]
-        public async Task<ActionResult> ApproveSocials(string addr)
-        {
-            _ = _databaseService.ApproveSubmitedSocialsToken(addr);
-
-            return Ok("approved successfully!");
-        }
-
     }
 }

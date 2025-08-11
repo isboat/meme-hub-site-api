@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Meme.Hub.Site.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // Base route: /api/auth
+    [Route("api/[controller]")] // Base route: /api/auth/
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
