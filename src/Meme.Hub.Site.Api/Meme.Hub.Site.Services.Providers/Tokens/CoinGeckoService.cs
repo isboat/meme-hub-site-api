@@ -1,14 +1,66 @@
-﻿namespace Meme.Hub.Site.Services.Providers.Tokens
+﻿using Meme.Hub.Site.Models.MemeTokens;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json.Nodes;
+
+namespace Meme.Hub.Site.Services.Providers.Tokens
 {
-    public class CoinGeckoService
+    public class CoinGeckoService: ICoinGeckoProvider
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "https://api.coingecko.com/api/v3";
-        private const string apiKeyQs = "x_cg_demo_api_key=CG-gphvLEo5jN2VdVLydwYL9sgg";
 
-        public CoinGeckoService(HttpClient httpClient)
+        public CoinGeckoService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("CoinGecko");
+        }
+
+        public async Task<List<TokenNetworkModel>> GetTokenNetworks()
+        {
+            // https://api.coingecko.com/api/v3/token_lists/solana/all.json
+            // https://api.coingecko.com/api/v3/asset_platforms
+            var url = $"/asset_platforms";
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Request failed: {response.StatusCode} - {error}");
+            }
+
+            var str = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<List<TokenNetworkModel>>(str);
+            return result ?? [];
+        }
+
+        public async Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId)
+        {
+            var url = $"/token_lists/{networkId}/all.json";
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Request failed: {response.StatusCode} - {error}");
+            }
+
+            var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            var tokens = json?["tokens"]?.AsArray();
+            if (tokens == null)
+            {
+                return [];
+            }
+
+            return tokens.Select(token => new CoinGeckoTokenModel
+            {
+                ChainId = token["chain_id"]?.GetValue<string>(),
+                Address = token["address"]?.GetValue<string>(),
+                Name = token["name"]?.GetValue<string>(),
+                Symbol = token["symbol"]?.GetValue<string>(),
+                Decimals = token["decimals"]?.GetValue<int>() ?? 0,
+                LogoURI = token["logo_uri"]?.GetValue<string>()
+            }).ToList();
         }
 
         public async Task<string> GetCoinDataByIdAsync(string coinId)
@@ -16,7 +68,7 @@
             if (string.IsNullOrWhiteSpace(coinId))
                 throw new ArgumentException("Coin ID cannot be null or empty.", nameof(coinId));
 
-            var url = $"{BaseUrl}/coins/{coinId}";
+            var url = $"/coins/{coinId}";
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)

@@ -38,7 +38,10 @@ namespace Meme.Hub.Site.Api
                                   });
             });
 
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(config =>
+            {
+                config.CreateMap<SubmitSocialsClaimModel, ApprovedSocialsModel>();
+            });
 
 
             // builder.Services.AddResponseCaching();
@@ -54,6 +57,7 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
             builder.Services.AddSingleton<IMemeTokenService, MemeTokenService>();
+            builder.Services.AddSingleton<ICoinGeckoService, CoinGeckoMemeTokenService>();
 
             RegisterHttpClientServices(builder);
             
@@ -84,7 +88,7 @@ namespace Meme.Hub.Site.Api
         private static void RegisterHttpClientServices(WebApplicationBuilder builder)
         {
             // Register the MoonTokProvider with HttpClient
-            builder.Services.AddHttpClient<ITokenDataProvider, MoonTokProvider>(client =>
+            builder.Services.AddHttpClient<ITokenDataProvider, MoonTokProvider>("MoonTok", client =>
             {
                 //get base address from configuration
                 var baseAddress = builder.Configuration["MoonTok:BaseUrl"];
@@ -92,9 +96,25 @@ namespace Meme.Hub.Site.Api
                 {
                     //throw new InvalidOperationException("MoonTok Base URL is not configured.");
                 }
-                // Set the base address and default headers for the HttpClient
-                client.BaseAddress = new Uri("https://apiv2.moontok.io/api");
+                client.BaseAddress = new Uri(baseAddress!);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            builder.Services.AddHttpClient<ICoinGeckoProvider, CoinGeckoService>("CoinGecko", client =>
+            {
+                // Set the base address and default headers for the HttpClient
+                var baseAddress = builder.Configuration["CoinGecko:BaseUrl"];
+                if (string.IsNullOrEmpty(baseAddress))
+                {
+                    //throw new InvalidOperationException("MoonTok Base URL is not configured.");
+                }
+
+                client.BaseAddress = new Uri(baseAddress!);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+                // Add api key header
+                var apiKey = builder.Configuration["CoinGecko:ApiKey"];
+                client.DefaultRequestHeaders.Add("x_cg_demo_api_key", apiKey);
             });
         }
 

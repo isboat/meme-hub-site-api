@@ -14,4 +14,13 @@ namespace Meme.Hub.Site.Services.Interfaces
 
         Task<IEnumerable<TokenDetailsDto>> GetCoinsByNetwork(string network);
     }
+    public interface ICoinGeckoService
+    {
+
+        Task<List<TokenNetworkModel>> GetTokenNetworks();
+
+        Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId);
+
+        Task<string> GetCoinDataByIdAsync(string coinId);
+    }
 }

@@ -7,13 +7,40 @@ using System.Text.Json.Nodes;
 
 namespace Meme.Hub.Site.Services.Tokens
 {
+    public class CoinGeckoMemeTokenService : ICoinGeckoService
+    {
+        private readonly ICoinGeckoService _coinGeckoService;
+
+        public CoinGeckoMemeTokenService(ICoinGeckoService coinGeckoService)
+        {
+            _coinGeckoService = coinGeckoService;
+        }
+
+        public Task<string> GetCoinDataByIdAsync(string coinId)
+        {
+            return _coinGeckoService.GetCoinDataByIdAsync(coinId);
+        }
+
+        public Task<List<TokenNetworkModel>> GetTokenNetworks()
+        {
+            return _coinGeckoService.GetTokenNetworks();
+        }
+
+        public Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId)
+        {
+            return _coinGeckoService.GetTokensByNetworkId(networkId);
+        }
+    }
+
     public class MemeTokenService : IMemeTokenService
     {
         private readonly ITokenDataProvider _tokenDataProvider;
+        private readonly ICoinGeckoService _coinGeckoService;
 
-        public MemeTokenService(ITokenDataProvider tokenDataProvider)
+        public MemeTokenService(ITokenDataProvider tokenDataProvider, ICoinGeckoService coinGeckoService)
         {
             _tokenDataProvider = tokenDataProvider;
+            _coinGeckoService = coinGeckoService;
         }
 
         public Task<JsonObject> GetCoinDataByIdAsync(string coinId)
