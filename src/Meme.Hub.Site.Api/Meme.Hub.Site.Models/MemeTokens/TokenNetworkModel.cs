@@ -7,7 +7,7 @@ namespace Meme.Hub.Site.Models.MemeTokens
         public string Id { get; set; }
 
         [JsonProperty("chain_identifier")]
-        public int ChainIdentifier { get; set; }
+        public int? ChainIdentifier { get; set; }
         public string Name { get; set; }
         public string ShortName { get; set; }
 

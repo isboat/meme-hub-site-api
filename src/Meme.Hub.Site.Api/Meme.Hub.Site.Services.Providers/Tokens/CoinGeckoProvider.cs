@@ -6,20 +6,19 @@ using System.Text.Json.Nodes;
 
 namespace Meme.Hub.Site.Services.Providers.Tokens
 {
-    public class CoinGeckoService: ICoinGeckoProvider
+    public class CoinGeckoProvider: ICoinGeckoProvider
     {
         private readonly HttpClient _httpClient;
+        private const string PathPrefix = "/api/v3";
 
-        public CoinGeckoService(IHttpClientFactory httpClientFactory)
+        public CoinGeckoProvider(HttpClient httpClient)
         {
-            _httpClient = httpClientFactory.CreateClient("CoinGecko");
+            _httpClient = httpClient;
         }
 
         public async Task<List<TokenNetworkModel>> GetTokenNetworks()
         {
-            // https://api.coingecko.com/api/v3/token_lists/solana/all.json
-            // https://api.coingecko.com/api/v3/asset_platforms
-            var url = $"/asset_platforms";
+            var url = GetPath($"/asset_platforms");
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -33,9 +32,11 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             return result ?? [];
         }
 
+        private static string? GetPath(string path) => $"{PathPrefix}{path}";
+
         public async Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId)
         {
-            var url = $"/token_lists/{networkId}/all.json";
+            var url = GetPath($"/token_lists/{networkId}/all.json");
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -62,13 +63,12 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 LogoURI = token["logo_uri"]?.GetValue<string>()
             }).ToList();
         }
-
         public async Task<string> GetCoinDataByIdAsync(string coinId)
         {
             if (string.IsNullOrWhiteSpace(coinId))
                 throw new ArgumentException("Coin ID cannot be null or empty.", nameof(coinId));
 
-            var url = $"/coins/{coinId}";
+            var url = GetPath($"/coins/{coinId}");
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)

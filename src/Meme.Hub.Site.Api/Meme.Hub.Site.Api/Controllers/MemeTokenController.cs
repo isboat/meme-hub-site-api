@@ -85,7 +85,7 @@ namespace Meme.Hub.Site.Api.Controllers
         public async Task<ActionResult> GetTokenNetworks(string network)
         {
             // In a real app, you'd fetch this from a service or database
-            var data = await memeTokenService.GetCoinsByNetwork(network);
+            var data = await _coinGeckoService.GetTokensByNetworkId(network);
             return Ok(data);
         }
     }

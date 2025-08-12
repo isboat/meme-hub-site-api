@@ -9,26 +9,26 @@ namespace Meme.Hub.Site.Services.Tokens
 {
     public class CoinGeckoMemeTokenService : ICoinGeckoService
     {
-        private readonly ICoinGeckoService _coinGeckoService;
+        private readonly ICoinGeckoProvider _coinGeckoProvider;
 
-        public CoinGeckoMemeTokenService(ICoinGeckoService coinGeckoService)
+        public CoinGeckoMemeTokenService(ICoinGeckoProvider coinGeckoProvider)
         {
-            _coinGeckoService = coinGeckoService;
+            _coinGeckoProvider = coinGeckoProvider;
         }
 
         public Task<string> GetCoinDataByIdAsync(string coinId)
         {
-            return _coinGeckoService.GetCoinDataByIdAsync(coinId);
+            return _coinGeckoProvider.GetCoinDataByIdAsync(coinId);
         }
 
         public Task<List<TokenNetworkModel>> GetTokenNetworks()
         {
-            return _coinGeckoService.GetTokenNetworks();
+            return _coinGeckoProvider.GetTokenNetworks();
         }
 
         public Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId)
         {
-            return _coinGeckoService.GetTokensByNetworkId(networkId);
+            return _coinGeckoProvider.GetTokensByNetworkId(networkId);
         }
     }
 

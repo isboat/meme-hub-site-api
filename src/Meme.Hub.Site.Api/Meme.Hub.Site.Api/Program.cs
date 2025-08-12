@@ -100,7 +100,7 @@ namespace Meme.Hub.Site.Api
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
-            builder.Services.AddHttpClient<ICoinGeckoProvider, CoinGeckoService>("CoinGecko", client =>
+            builder.Services.AddHttpClient<ICoinGeckoProvider, CoinGeckoProvider>("CoinGecko", client =>
             {
                 // Set the base address and default headers for the HttpClient
                 var baseAddress = builder.Configuration["CoinGecko:BaseUrl"];
