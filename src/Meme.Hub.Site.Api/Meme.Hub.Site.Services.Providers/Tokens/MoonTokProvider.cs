@@ -63,7 +63,8 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                             Address = firstAddress["tokenAddress"]?.ToString(),
                             Name = token["name"]?.ToString(),
                             Symbol = token["symbol"]?.ToString(),
-                            Decimals = firstAddress["marketcap"]?.GetValue<int>() ?? 0,
+                            Marketcap = token["marketcap"]?.ToString(),
+                            Price = token["price"]?.ToString(),
                             LogoURI = token["logoUrl"]?.ToString(),
                             AddressDto = new TokenAddressDto
                             {
@@ -137,12 +138,12 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 Id = chain["id"]?.ToString(),
                 ChainIdentifier = chain["slug"]?.ToString(),
                 Name = chain["name"]?.ToString(),
-                ShortName = chain["abbr"]?.ToString(),
+                ShortName = chain["symbol"]?.ToString(),
                 Image = new TokenImageModel
                 {
-                    Thumb = chain["logoUrl"]?.ToString(),
-                    Large = chain["logoUrl"]?.ToString(),
-                    Small = chain["logoUrl"]?.ToString(),
+                    Thumb = chain["image"]?.ToString(),
+                    Large = chain["image"]?.ToString(),
+                    Small = chain["image"]?.ToString(),
                 },
                 NativeCoinId = chain["dextoolsIdentifier"]?.ToString(),
             });

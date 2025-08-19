@@ -58,7 +58,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 Address = token["address"]?.GetValue<string>(),
                 Name = token["name"]?.GetValue<string>(),
                 Symbol = token["symbol"]?.GetValue<string>(),
-                Decimals = token["decimals"]?.GetValue<int>() ?? 0,
+                Marketcap = token["decimals"]?.ToString(),
                 LogoURI = token["logo_uri"]?.GetValue<string>()
             }).ToList();
         }
