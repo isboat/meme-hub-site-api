@@ -1,4 +1,5 @@
-﻿using Meme.Hub.Site.Models.MemeTokens;
+﻿using Meme.Domain.Models.TokenModels;
+using Meme.Hub.Site.Models.MemeTokens;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -6,7 +7,7 @@ using System.Text.Json.Nodes;
 
 namespace Meme.Hub.Site.Services.Providers.Tokens
 {
-    public class CoinGeckoProvider: ICoinGeckoProvider
+    public class CoinGeckoProvider : ITokenDataProvider
     {
         private readonly HttpClient _httpClient;
         private const string PathPrefix = "/api/v3";
@@ -16,7 +17,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             _httpClient = httpClient;
         }
 
-        public async Task<List<TokenNetworkModel>> GetTokenNetworks()
+        public async Task<IEnumerable<TokenNetworkModel>> GetTokenNetworks()
         {
             var url = GetPath($"/asset_platforms");
             var response = await _httpClient.GetAsync(url);
@@ -32,9 +33,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             return result ?? [];
         }
 
-        private static string? GetPath(string path) => $"{PathPrefix}{path}";
-
-        public async Task<List<CoinGeckoTokenModel>> GetTokensByNetworkId(string networkId)
+        public async Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string networkId)
         {
             var url = GetPath($"/token_lists/{networkId}/all.json");
             var response = await _httpClient.GetAsync(url);
@@ -63,7 +62,8 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 LogoURI = token["logo_uri"]?.GetValue<string>()
             }).ToList();
         }
-        public async Task<string> GetCoinDataByIdAsync(string coinId)
+
+        public async Task<JsonObject> GetCoinDataByIdAsync(string coinId)
         {
             if (string.IsNullOrWhiteSpace(coinId))
                 throw new ArgumentException("Coin ID cannot be null or empty.", nameof(coinId));
@@ -77,7 +77,16 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 throw new HttpRequestException($"Request failed: {response.StatusCode} - {error}");
             }
 
-            return await response.Content.ReadAsStringAsync();
+            var str = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<JsonObject>(str) 
+                   ?? throw new InvalidOperationException("Failed to deserialize coin data.");
         }
+
+        public Task<IEnumerable<TokenDataModel>> GetTrendingTokens()
+        {
+            throw new NotImplementedException();
+        }
+
+        private static string? GetPath(string path) => $"{PathPrefix}{path}";
     }
 }

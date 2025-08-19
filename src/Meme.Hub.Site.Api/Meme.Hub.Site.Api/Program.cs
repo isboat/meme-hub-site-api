@@ -57,7 +57,6 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
             builder.Services.AddSingleton<IMemeTokenService, MemeTokenService>();
-            builder.Services.AddSingleton<ICoinGeckoService, CoinGeckoMemeTokenService>();
 
             RegisterHttpClientServices(builder);
             
@@ -100,22 +99,22 @@ namespace Meme.Hub.Site.Api
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
-            builder.Services.AddHttpClient<ICoinGeckoProvider, CoinGeckoProvider>("CoinGecko", client =>
-            {
-                // Set the base address and default headers for the HttpClient
-                var baseAddress = builder.Configuration["CoinGecko:BaseUrl"];
-                if (string.IsNullOrEmpty(baseAddress))
-                {
-                    //throw new InvalidOperationException("MoonTok Base URL is not configured.");
-                }
+            //builder.Services.AddHttpClient<ITokenDataProvider, CoinGeckoProvider>("CoinGecko", client =>
+            //{
+            //    // Set the base address and default headers for the HttpClient
+            //    var baseAddress = builder.Configuration["CoinGecko:BaseUrl"];
+            //    if (string.IsNullOrEmpty(baseAddress))
+            //    {
+            //        //throw new InvalidOperationException("MoonTok Base URL is not configured.");
+            //    }
 
-                client.BaseAddress = new Uri(baseAddress!);
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            //    client.BaseAddress = new Uri(baseAddress!);
+            //    client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                // Add api key header
-                var apiKey = builder.Configuration["CoinGecko:ApiKey"];
-                client.DefaultRequestHeaders.Add("x_cg_demo_api_key", apiKey);
-            });
+            //    // Add api key header
+            //    var apiKey = builder.Configuration["CoinGecko:ApiKey"];
+            //    client.DefaultRequestHeaders.Add("x_cg_demo_api_key", apiKey);
+            //});
         }
 
         private static void RegisterJwtAuth(WebApplicationBuilder builder)

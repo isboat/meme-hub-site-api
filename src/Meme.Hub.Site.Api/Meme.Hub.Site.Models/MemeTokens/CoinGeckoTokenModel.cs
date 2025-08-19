@@ -8,5 +8,7 @@ namespace Meme.Hub.Site.Models.MemeTokens
         public string Symbol { get; set; }
         public int Decimals { get; set; }
         public string LogoURI { get; set; }
+
+        public TokenAddressDto AddressDto { get; set; }
     }
 }

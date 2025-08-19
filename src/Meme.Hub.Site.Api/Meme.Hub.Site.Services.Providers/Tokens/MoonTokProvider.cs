@@ -27,7 +27,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<TokenDetailsDto>> GetCoinsByNetwork(string network) // Example: "solana"
+        public async Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network) // Example: "solana"
         {
             var url = $"api/tokens?type=CRYPTOCURRENCIES&sortBy=rank&sortDir=DESC&chain={network}&page=1&pageSize=100";
             var response = await _httpClient.GetAsync(url);
@@ -48,43 +48,76 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             {
                 return []; // Return empty data if no tokens found
             }
-            // Convert JsonArray to IEnumerable<TokenDetailsDto>
-            return tokens.Select(token => new TokenDetailsDto
+            var tokenList = new List<CoinGeckoTokenModel>();
+            foreach (var token in tokens) 
             {
-                Id = token["id"]?.ToString(),
-                Name = token["name"]?.ToString(),
-                Slug = token["slug"]?.ToString(),
-                Symbol = token["symbol"]?.ToString(),
-                CreatedAt = DateTime.Parse(token["createdAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                UpdatedAt = DateTime.Parse(token["updatedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                DeletedAt = token["deletedAt"]?.GetValue<DateTime?>(),
-                LogoUrl = token["logoUrl"]?.ToString(),
-                Price = token["price"]?.GetValue<decimal>() ?? 0,
-                Marketcap = token["marketcap"]?.GetValue<decimal>() ?? 0,
-                Liquidity = token["liquidity"]?.GetValue<decimal>() ?? 0,
-                PriceChangeH1 = token["priceChangeH1"]?.GetValue<decimal>() ?? 0,
-                PriceChangeH6 = token["priceChangeH6"]?.GetValue<decimal>() ?? 0,
-                PriceChangeH24 = token["priceChangeH24"]?.GetValue<decimal>() ?? 0,
-                ListedAt = DateTime.Parse(token["listedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                IsExpressListing = token["isExpressListing"]?.GetValue<bool>() ?? false,
-                Status = token["status"]?.GetValue<int>() ?? 0,
-                LaunchedAt = DateTime.Parse(token["launchedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                CreatedBy = token["createdBy"]?.ToString(),
-                Addresses = token["addresses"]?.AsArray()?.Select(address => new TokenAddressDto
+                var addresses = token["addresses"]?.AsArray();
+                if (addresses != null && addresses.Count > 0)
                 {
-                    Id = address["id"]?.ToString(),
-                    TokenAddress = address["tokenAddress"]?.ToString(),
-                    PairAddress = address["pairAddress"]?.ToString(),
-                    Chain = address["chain"] != null ? new ChainDto
+                    var firstAddress = addresses.FirstOrDefault();
+                    if (firstAddress != null)
                     {
-                        Id = address["chain"]["id"]?.ToString(),
-                        Name = address["chain"]["name"]?.ToString()
-                    } : null
-                }).ToList() ?? []
-            });
+                        tokenList.Add(new CoinGeckoTokenModel
+                        {
+                            ChainId = firstAddress["chain"]?["id"]?.ToString(),
+                            Address = firstAddress["tokenAddress"]?.ToString(),
+                            Name = token["name"]?.ToString(),
+                            Symbol = token["symbol"]?.ToString(),
+                            Decimals = firstAddress["marketcap"]?.GetValue<int>() ?? 0,
+                            LogoURI = token["logoUrl"]?.ToString(),
+                            AddressDto = new TokenAddressDto
+                            {
+                                TokenAddress = firstAddress["tokenAddress"]?.ToString(),
+                                PairAddress = firstAddress["pairAddress"]?.ToString(),
+                                Chain = new ChainDto
+                                {
+                                    Id = firstAddress["chain"]?["id"]?.ToString(),
+                                    Name = firstAddress["chain"]?["name"]?.ToString()
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            return tokenList;
+
+            // Convert JsonArray to IEnumerable<TokenDetailsDto>
+            //return tokens.Select(token => new TokenDetailsDto
+            //{
+            //    Id = token["id"]?.ToString(),
+            //    Name = token["name"]?.ToString(),
+            //    Slug = token["slug"]?.ToString(),
+            //    Symbol = token["symbol"]?.ToString(),
+            //    CreatedAt = DateTime.Parse(token["createdAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    UpdatedAt = DateTime.Parse(token["updatedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    DeletedAt = token["deletedAt"]?.GetValue<DateTime?>(),
+            //    LogoUrl = token["logoUrl"]?.ToString(),
+            //    Price = token["price"]?.GetValue<decimal>() ?? 0,
+            //    Marketcap = token["marketcap"]?.GetValue<decimal>() ?? 0,
+            //    Liquidity = token["liquidity"]?.GetValue<decimal>() ?? 0,
+            //    PriceChangeH1 = token["priceChangeH1"]?.GetValue<decimal>() ?? 0,
+            //    PriceChangeH6 = token["priceChangeH6"]?.GetValue<decimal>() ?? 0,
+            //    PriceChangeH24 = token["priceChangeH24"]?.GetValue<decimal>() ?? 0,
+            //    ListedAt = DateTime.Parse(token["listedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    IsExpressListing = token["isExpressListing"]?.GetValue<bool>() ?? false,
+            //    Status = token["status"]?.GetValue<int>() ?? 0,
+            //    LaunchedAt = DateTime.Parse(token["launchedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    CreatedBy = token["createdBy"]?.ToString(),
+            //    Addresses = token["addresses"]?.AsArray()?.Select(address => new TokenAddressDto
+            //    {
+            //        Id = address["id"]?.ToString(),
+            //        TokenAddress = address["tokenAddress"]?.ToString(),
+            //        PairAddress = address["pairAddress"]?.ToString(),
+            //        Chain = address["chain"] != null ? new ChainDto
+            //        {
+            //            Id = address["chain"]["id"]?.ToString(),
+            //            Name = address["chain"]["name"]?.ToString()
+            //        } : null
+            //    }).ToList() ?? []
+            //});
         }
 
-        public async Task<IEnumerable<TokenChains>> GetTokenNetworks()
+        public async Task<IEnumerable<TokenNetworkModel>> GetTokenNetworks()
         {
             var url = $"api/chains";
             var response = await _httpClient.GetAsync(url);
@@ -99,27 +132,42 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 return [];
             }
 
-            // Convert JsonArray to IEnumerable<TokenChains>
-            return chains.Select(chain => new TokenChains
+            return chains.Select(chain => new TokenNetworkModel
             {
                 Id = chain["id"]?.ToString(),
-                ChainId = chain["chainId"]?.ToString(),
+                ChainIdentifier = chain["slug"]?.ToString(),
                 Name = chain["name"]?.ToString(),
-                Abbr = chain["abbr"]?.ToString(),
-                Slug = chain["slug"]?.ToString(),
-                CurrencySymbol = chain["currencySymbol"]?.ToString(),
-                ExplorerUrl = chain["explorerUrl"]?.ToString(),
-                DextoolsIdentifier = chain["dextoolsIdentifier"]?.ToString(),
-                GeckoterminalIdentifier = chain["geckoterminalIdentifier"]?.ToString(),
-                PayCurrency = chain["payCurrency"]?.ToString(),
-                Emoji = chain["emoji"]?.ToString(),
-                LogoUrl = chain["logoUrl"]?.ToString(),
-                PriceUsd = chain["priceUsd"]?.GetValue<decimal>() ?? 0,
-                PriceUpdatedAt = DateTime.Parse(chain["priceUpdatedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                Ranking = chain["ranking"]?.GetValue<int>() ?? 0,
-                CreatedAt = DateTime.Parse(chain["createdAt"]?.ToString() ?? DateTime.MinValue.ToString()),
-                UpdatedAt = DateTime.Parse(chain["updatedAt"]?.ToString() ?? DateTime.MinValue.ToString())
+                ShortName = chain["abbr"]?.ToString(),
+                Image = new TokenImageModel
+                {
+                    Thumb = chain["logoUrl"]?.ToString(),
+                    Large = chain["logoUrl"]?.ToString(),
+                    Small = chain["logoUrl"]?.ToString(),
+                },
+                NativeCoinId = chain["dextoolsIdentifier"]?.ToString(),
             });
+
+            // Convert JsonArray to IEnumerable<TokenChains>
+            //return chains.Select(chain => new TokenChains
+            //{
+            //    Id = chain["id"]?.ToString(),
+            //    ChainId = chain["chainId"]?.ToString(),
+            //    Name = chain["name"]?.ToString(),
+            //    Abbr = chain["abbr"]?.ToString(),
+            //    Slug = chain["slug"]?.ToString(),
+            //    CurrencySymbol = chain["currencySymbol"]?.ToString(),
+            //    ExplorerUrl = chain["explorerUrl"]?.ToString(),
+            //    DextoolsIdentifier = chain["dextoolsIdentifier"]?.ToString(),
+            //    GeckoterminalIdentifier = chain["geckoterminalIdentifier"]?.ToString(),
+            //    PayCurrency = chain["payCurrency"]?.ToString(),
+            //    Emoji = chain["emoji"]?.ToString(),
+            //    LogoUrl = chain["logoUrl"]?.ToString(),
+            //    PriceUsd = chain["priceUsd"]?.GetValue<decimal>() ?? 0,
+            //    PriceUpdatedAt = DateTime.Parse(chain["priceUpdatedAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    Ranking = chain["ranking"]?.GetValue<int>() ?? 0,
+            //    CreatedAt = DateTime.Parse(chain["createdAt"]?.ToString() ?? DateTime.MinValue.ToString()),
+            //    UpdatedAt = DateTime.Parse(chain["updatedAt"]?.ToString() ?? DateTime.MinValue.ToString())
+            //});
         }
 
         public async Task<IEnumerable<TokenDataModel>> GetTrendingTokens()
@@ -140,13 +188,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
             {
                 Id = token["id"]?.ToString(),
                 Name = token["name"]?.ToString(),
-                Symbol = token["symbol"]?.ToString(),
-                //ImageUrl = token["imageUrl"]?.ToString(),
-                //Network = token["chain"]?.ToString(),
-                //Price = token["price"]?.GetValue<decimal>() ?? 0,
-                //MarketCap = token["marketCap"]?.GetValue<decimal>() ?? 0,
-                //Volume24h = token["volume24h"]?.GetValue<decimal>() ?? 0,
-                //Change24h = token["change24h"]?.GetValue<decimal>() ?? 0
+                Symbol = token["symbol"]?.ToString()
             });
         }
     }

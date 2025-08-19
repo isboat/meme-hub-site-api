@@ -11,12 +11,10 @@ namespace Meme.Hub.Site.Api.Controllers
     public class MemeTokenController : ControllerBase
     {
         private readonly IMemeTokenService memeTokenService;
-        private readonly ICoinGeckoService _coinGeckoService;
 
-        public MemeTokenController(IMemeTokenService memeTokenService, ICoinGeckoService coinGeckoService)
+        public MemeTokenController(IMemeTokenService memeTokenService)
         {
             this.memeTokenService = memeTokenService;
-            _coinGeckoService = coinGeckoService;
         }
 
         // --- Dummy Data (replace with database calls in a real application) ---
@@ -76,7 +74,7 @@ namespace Meme.Hub.Site.Api.Controllers
         public async Task<ActionResult> GetTokenNetworks()
         {
             // In a real app, you'd fetch this from a service or database
-            var data = await _coinGeckoService.GetTokenNetworks();
+            var data = await memeTokenService.GetTokenNetworks();
             return Ok(data);
         }
 
@@ -85,7 +83,7 @@ namespace Meme.Hub.Site.Api.Controllers
         public async Task<ActionResult> GetTokenNetworks(string network)
         {
             // In a real app, you'd fetch this from a service or database
-            var data = await _coinGeckoService.GetTokensByNetworkId(network);
+            var data = await memeTokenService.GetCoinsByNetwork(network);
             return Ok(data);
         }
     }
