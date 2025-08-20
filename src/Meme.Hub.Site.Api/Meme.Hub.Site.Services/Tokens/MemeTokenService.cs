@@ -35,5 +35,10 @@ namespace Meme.Hub.Site.Services.Tokens
         {
             return _tokenDataProvider.GetTrendingTokens();
         }
+
+        public Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search)
+        {
+            return _tokenDataProvider.SearchCoin(search);
+        }
     }
 }

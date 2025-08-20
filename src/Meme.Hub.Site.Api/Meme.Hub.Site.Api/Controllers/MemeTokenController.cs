@@ -82,8 +82,27 @@ namespace Meme.Hub.Site.Api.Controllers
         [HttpGet("{network}/tokens")]
         public async Task<ActionResult> GetTokenNetworks(string network)
         {
+            if (string.IsNullOrWhiteSpace(network))
+            {
+                return BadRequest("Network cannot be empty.");
+            }
+
             // In a real app, you'd fetch this from a service or database
             var data = await memeTokenService.GetCoinsByNetwork(network);
+            return Ok(data);
+        }
+
+        // GET: /api/token/latestunclaimed
+        [HttpGet("search/{search}")]
+        public async Task<ActionResult> GetSearchedTokens(string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+
+            // In a real app, you'd fetch this from a service or database
+            var data = await memeTokenService.SearchCoin(search);
             return Ok(data);
         }
     }

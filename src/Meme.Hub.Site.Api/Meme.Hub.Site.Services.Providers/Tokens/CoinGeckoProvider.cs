@@ -88,5 +88,10 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
         }
 
         private static string? GetPath(string path) => $"{PathPrefix}{path}";
+
+        public Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -19,5 +19,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
         Task<IEnumerable<TokenDataModel>> GetTrendingTokens();
 
         Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network);
+
+        Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search);
     }
 }

@@ -29,6 +29,7 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
 
         public async Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network) // Example: "solana"
         {
+            // https://apiv2.moontok.io/api/tokens/search/all?q=doge&page=1&pageSize=50
             var url = $"api/tokens?type=CRYPTOCURRENCIES&sortBy=rank&sortDir=DESC&chain={network}&page=1&pageSize=100";
             var response = await _httpClient.GetAsync(url);
 
@@ -191,6 +192,62 @@ namespace Meme.Hub.Site.Services.Providers.Tokens
                 Name = token["name"]?.ToString(),
                 Symbol = token["symbol"]?.ToString()
             });
+        }
+
+        public async Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search)
+        {
+            var url = $"api/tokens/search/all?q={search}&page=1&pageSize=50";
+            var response = await _httpClient.GetAsync(url);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return []; // Return empty data if not found
+            }
+            response.EnsureSuccessStatusCode();
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+            if (jsonObject == null || !jsonObject.ContainsKey("data"))
+            {
+                return []; // Return empty data if no data found
+            }
+            var tokens = jsonObject["data"]?.AsArray();
+            if (tokens == null)
+            {
+                return []; // Return empty data if no tokens found
+            }
+            var tokenList = new List<CoinGeckoTokenModel>();
+            foreach (var token in tokens)
+            {
+                var addresses = token["addresses"]?.AsArray();
+                if (addresses != null && addresses.Count > 0)
+                {
+                    var firstAddress = addresses.FirstOrDefault();
+                    if (firstAddress != null)
+                    {
+                        tokenList.Add(new CoinGeckoTokenModel
+                        {
+                            ChainId = firstAddress["chain"]?["id"]?.ToString(),
+                            Address = firstAddress["tokenAddress"]?.ToString(),
+                            Name = token["name"]?.ToString(),
+                            Symbol = token["symbol"]?.ToString(),
+                            Marketcap = token["marketcap"]?.ToString(),
+                            Price = token["price"]?.ToString(),
+                            LogoURI = token["logoUrl"]?.ToString(),
+                            AddressDto = new TokenAddressDto
+                            {
+                                TokenAddress = firstAddress["tokenAddress"]?.ToString(),
+                                PairAddress = firstAddress["pairAddress"]?.ToString(),
+                                Chain = new ChainDto
+                                {
+                                    Id = firstAddress["chain"]?["id"]?.ToString(),
+                                    Name = firstAddress["chain"]?["name"]?.ToString()
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            return tokenList;
         }
     }
 }

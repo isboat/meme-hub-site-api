@@ -13,5 +13,7 @@ namespace Meme.Hub.Site.Services.Interfaces
         Task<IEnumerable<TokenDataModel>> GetTrendingTokens();
 
         Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network);
+
+        Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search);
     }
 }
