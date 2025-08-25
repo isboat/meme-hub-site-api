@@ -11,7 +11,7 @@ namespace Meme.Hub.Site.Api.Controllers
     [Route("api/token-profile")]
     public class TokenProfileController : CustomBaseController
     {
-        private readonly IProfileService _profileService;
+        private readonly ITokenProfileService _profileService;
         private readonly IStorageService _storageService;
         private readonly IDatabaseService _databaseService;
         private readonly ICacheService _cacheService;
@@ -19,7 +19,7 @@ namespace Meme.Hub.Site.Api.Controllers
         private const long UploadMaxSixe = 3_000_000_000;
         private const string allowedImageFileExt = "image/jpeg,image/png,image/gif";
 
-        public TokenProfileController(IProfileService profileService, IStorageService storageService, IDatabaseService databaseService, ICacheService cacheService)
+        public TokenProfileController(ITokenProfileService profileService, IStorageService storageService, IDatabaseService databaseService, ICacheService cacheService)
         {
             _profileService = profileService;
             _storageService = storageService;

@@ -15,25 +15,28 @@ namespace Meme.Hub.Site.Services
             _dbRepository = dbRepository;
         }
 
-        public async Task<UserProfile> GetProfile(string id)
+        public async Task<UserProfile?> GetProfile(string id)
         {
             var filter = Builders<UserProfile>.Filter.Eq(u => u.Id, id);
 
             var profile = (await _dbRepository.GetData(collectionName, filter)).FirstOrDefault();
+            if (profile == null) return null;
 
-            var followingFilter = Builders<UserProfile>.Filter.Where(u => u.Followers.Contains(profile.Id));
-            var following = (await _dbRepository.GetData(collectionName, followingFilter)).ToList();
-            profile.Following = following.Select(x => x.Id).ToList();
-
+            var followingFilter = Builders<UserProfile>.Filter.Where(u => u.Followers.Contains(profile.Id!));
+            var following = (await _dbRepository.GetData(collectionName, followingFilter))?.ToList();
+            if (following != null && following.Count != 0)
+            {
+                profile.Following = [.. following.Select(x => x.Id)];
+            }
             return profile;
         }
 
-        public async Task<List<UserProfile>> GetKolsProfile()
+        public async Task<List<UserProfile>?> GetKolsProfile()
         {
             var filter = Builders<UserProfile>.Filter.Eq(u => u.ProfileType, ProfileType.Kol);
 
             var profiles = await _dbRepository.GetData(collectionName, filter);
-            return profiles.ToList();
+            return profiles != null ? profiles.ToList() : null;
         }
 
         public Task<bool> CreateProfile(UserProfile profile)

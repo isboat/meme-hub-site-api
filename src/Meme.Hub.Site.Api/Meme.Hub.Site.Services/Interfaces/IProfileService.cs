@@ -6,8 +6,8 @@ namespace Meme.Hub.Site.Services.Interfaces
 {
     public interface IProfileService
     {
-        Task<UserProfile> GetProfile(string id);
-        Task<List<UserProfile>> GetKolsProfile();
+        Task<UserProfile?> GetProfile(string id);
+        Task<List<UserProfile>?> GetKolsProfile();
 
         Task<bool> CreateProfile(UserProfile profile);
 
@@ -20,4 +20,5 @@ namespace Meme.Hub.Site.Services.Interfaces
         Task<List<UserProfile>> GetFollowers(string profileId);
         Task<List<UserProfile>> GetFollowing(string profileId);
     }
+
 }

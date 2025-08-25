@@ -56,6 +56,7 @@ namespace Meme.Hub.Site.Api
             builder.Services.AddSingleton<ICosmosDBRepository, CosmosDBRepository>();
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
+            builder.Services.AddSingleton<ITokenProfileService, TokenProfileService>();
             builder.Services.AddSingleton<IMemeTokenService, MemeTokenService>();
 
             RegisterHttpClientServices(builder);
