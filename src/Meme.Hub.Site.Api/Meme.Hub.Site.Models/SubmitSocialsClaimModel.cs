@@ -17,7 +17,6 @@ namespace Meme.Hub.Site.Models
         public string Email { get; set; }
         public string BannerUrl { get; set; }
         public bool Infringement { get; set; }
-        public bool AssertOwned { get; set; }
         public TokenDataModel TokenData { get; set; }
     }
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Meme.Hub.Site.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/token-profile")]
     public class TokenProfileController : CustomBaseController
     {
         private readonly IProfileService _profileService;
@@ -27,7 +27,6 @@ namespace Meme.Hub.Site.Api.Controllers
             _cacheService = cacheService;
         }
 
-        // POST: /api/auth/gettoken
         [HttpGet("{id}")]
         public async Task<ActionResult<TokenProfile>> GetProfile(string id)
         {
@@ -64,6 +63,7 @@ namespace Meme.Hub.Site.Api.Controllers
         }
 
         [HttpPost("submit-socials")]
+        [Authorize()]
         public async Task<ActionResult> SubmitSocials([FromForm] SubmitSocialsRequestModel model)
         {
 
@@ -90,7 +90,6 @@ namespace Meme.Hub.Site.Api.Controllers
 
             _ = _databaseService.SaveSubmitedSocialsToken(new SubmitSocialsClaimModel
             {
-                AssertOwned = true,
                 Contract = model.Contract,
                 Email = model.Email,
                 Infringement = model.Infringement,

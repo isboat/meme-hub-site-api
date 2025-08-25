@@ -15,18 +15,11 @@ namespace Meme.Hub.Site.Api.Controllers
         private readonly ILogger<TokenController> _logger;
 
         private readonly ICacheService _cacheService;
-        private readonly IDatabaseService _databaseService;
-        private readonly IStorageService _storageService;
 
-        private const long UploadMaxSixe = 3_000_000_000;
-        private const string allowedImageFileExt = "image/jpeg,image/png,image/gif";
-
-        public TokenController(ILogger<TokenController> logger, ICacheService cacheService, IDatabaseService databaseService, IStorageService storageService)
+        public TokenController(ILogger<TokenController> logger, ICacheService cacheService)
         {
             _logger = logger;
             _cacheService = cacheService;
-            _databaseService = databaseService;
-            _storageService = storageService;
         }
 
         /// <summary>
