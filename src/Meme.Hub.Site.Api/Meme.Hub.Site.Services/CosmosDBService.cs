@@ -41,7 +41,7 @@ namespace Meme.Hub.Site.Services
 
         public async Task<bool> ApproveSubmitedSocialsToken(string tokenAddress)
         {
-            var submittedSocials = await ( await _database.GetCollection<SubmitSocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.Contract == tokenAddress)).FirstOrDefaultAsync();
+            var submittedSocials = await ( await _database.GetCollection<SubmitSocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.TokenAddress == tokenAddress)).FirstOrDefaultAsync();
 
             if(submittedSocials == null) return false;
 
@@ -55,7 +55,7 @@ namespace Meme.Hub.Site.Services
 
         public async Task<ApprovedSocialsModel> GetSocialsByAddress(string tokenAddress)
         {
-            return (await _database.GetCollection<ApprovedSocialsModel>(_approvedSocialsColName).FindAsync(x => x.Contract == tokenAddress)).FirstOrDefault();
+            return (await _database.GetCollection<ApprovedSocialsModel>(_approvedSocialsColName).FindAsync(x => x.TokenAddress == tokenAddress)).FirstOrDefault();
         }
     }
 }

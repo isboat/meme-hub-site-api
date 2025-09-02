@@ -71,41 +71,44 @@ namespace Meme.Hub.Site.Api.Controllers
             long size = 0;
             var fileName = "";
 
-            if (model.Banner != null && model.Banner.Length > 0)
+            if (model.ProfileImageFile != null && model.ProfileImageFile.Length > 0)
             {
-                bool isImageFile = allowedImageFileExt.Contains(model.Banner.ContentType);
+                bool isImageFile = allowedImageFileExt.Contains(model.ProfileImageFile.ContentType);
                 if (!isImageFile)
                 {
-                    return BadRequest($"{model.Banner.ContentType} Not allowed");
+                    return BadRequest($"{model.ProfileImageFile.ContentType} Not allowed");
                 }
 
-                size = model.Banner.Length;
-                if (model.Banner.Length > 0)
+                size = model.ProfileImageFile.Length;
+                if (model.ProfileImageFile.Length > 0)
                 {
-                    fileName = model.Banner.FileName.ToLowerInvariant();
-                    await using var stream = model.Banner.OpenReadStream();
-                    bannerStoragePath = await _storageService.UploadAsync(model.Contract, fileName, stream);
+                    fileName = model.ProfileImageFile.FileName.ToLowerInvariant();
+                    await using var stream = model.ProfileImageFile.OpenReadStream();
+                    bannerStoragePath = await _storageService.UploadAsync(model.TokenAddress, fileName, stream);
                 }
             }
 
             _ = _databaseService.SaveSubmitedSocialsToken(new SubmitSocialsClaimModel
             {
-                Contract = model.Contract,
-                Email = model.Email,
-                Infringement = model.Infringement,
+                UserId = model.UserId,
+                Description = model.Description,
+                TokenAddress = model.TokenAddress,
+                TelegramUsername = model.TelegramUsername,
+                Chain = model.Chain,
+                Discord = model.Discord,
+                DiscordUsername = model.DiscordUsername,
+                Id = Guid.NewGuid().ToString("N"),
+                Others = model.Other,
+                Reddit = model.Reddit,                
                 Telegram = model.Telegram,
-                Ticker = model.Ticker,
                 TokenName = model.TokenName,
                 Twitter = model.Twitter,
-                Dexscreener = model.Dexscreener,
-                Dextools = model.Dextools,
-                Docs = model.Docs,
                 Website = model.Website,
                 BannerUrl = bannerStoragePath,
-                TokenData = await _cacheService.GetTokenData(model.Contract),
+                TokenData = await _cacheService.GetTokenData(model.TokenAddress),
             });
 
-            _ = _databaseService.ApproveSubmitedSocialsToken(model.Contract);
+            //_ = _databaseService.ApproveSubmitedSocialsToken(model.TokenAddress);
 
             return Ok("Form submitted successfully!");
         }
