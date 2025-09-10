@@ -2,7 +2,7 @@
 
 namespace Meme.Hub.Site.Models
 {
-    public class SubmitSocialsClaimModel
+    public class SocialsClaimModel
     {
         public string Id { get; set; }
         public string TokenName { get; set; }
@@ -20,7 +20,22 @@ namespace Meme.Hub.Site.Models
         public string TelegramUsername { get; set; }
         public string BannerUrl { get; set; }
         public TokenDataModel TokenData { get; set; }
+        public List<Approval> Approvers { get; set; }
+        public DateTime SubmitedAt { get; set; }
+        public SocialsClaimStatus Status { get; set; }
     }
 
-    public class ApprovedSocialsModel : SubmitSocialsClaimModel { }
+    public class Approval
+    {
+        public string UserId { get; set; }
+        public DateTime? ApprovedAt { get; set; }
+
+    }
+
+    public enum SocialsClaimStatus
+    {
+        Pending,
+        Approved,
+        Cancelled
+    }
 }

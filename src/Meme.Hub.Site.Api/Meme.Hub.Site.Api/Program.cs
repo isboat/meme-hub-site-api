@@ -40,7 +40,7 @@ namespace Meme.Hub.Site.Api
 
             builder.Services.AddAutoMapper(config =>
             {
-                config.CreateMap<SubmitSocialsClaimModel, ApprovedSocialsModel>();
+                //config.CreateMap<SocialsClaimModel, ApprovedSocialsModel>();
             });
 
 

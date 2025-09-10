@@ -7,9 +7,11 @@ namespace Meme.Hub.Site.Services.Interfaces
     {
         Task<TokenDataModel> GetTokenData(string tokenAddress);
 
-        Task<bool> SaveSubmitedSocialsToken(SubmitSocialsClaimModel submitTokenClaim);
+        Task<bool> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim);
 
-        Task<bool> ApproveSubmitedSocialsToken(string tokenAddress);
-        Task<ApprovedSocialsModel> GetSocialsByAddress(string tokenAddress);
+        Task<IEnumerable<SocialsClaimModel>?> GetUserPendingSocialsClaims(string userId);
+
+        Task<bool> ApproveSubmitedSocialsToken(string tokenAddress, string approverUserId);
+        Task<SocialsClaimModel> GetTokenSocialsClaimById(string claimId);
     }
 }

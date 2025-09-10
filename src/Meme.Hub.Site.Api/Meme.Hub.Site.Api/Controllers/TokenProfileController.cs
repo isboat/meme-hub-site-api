@@ -57,7 +57,7 @@ namespace Meme.Hub.Site.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(tokenAddress)) return BadRequest();
 
-            var dbEleme = await _databaseService.GetSocialsByAddress(tokenAddress);
+            var dbEleme = await _databaseService.GetTokenSocialsClaimById(tokenAddress);
 
             return new OkObjectResult(dbEleme);
         }
@@ -88,7 +88,7 @@ namespace Meme.Hub.Site.Api.Controllers
                 }
             }
 
-            _ = _databaseService.SaveSubmitedSocialsToken(new SubmitSocialsClaimModel
+            _ = _databaseService.SaveSubmitedSocialsToken(new SocialsClaimModel
             {
                 UserId = model.UserId,
                 Description = model.Description,
@@ -97,7 +97,6 @@ namespace Meme.Hub.Site.Api.Controllers
                 Chain = model.Chain,
                 Discord = model.Discord,
                 DiscordUsername = model.DiscordUsername,
-                Id = Guid.NewGuid().ToString("N"),
                 Others = model.Other,
                 Reddit = model.Reddit,                
                 Telegram = model.Telegram,
@@ -106,6 +105,9 @@ namespace Meme.Hub.Site.Api.Controllers
                 Website = model.Website,
                 BannerUrl = bannerStoragePath,
                 TokenData = await _cacheService.GetTokenData(model.TokenAddress),
+                Approvers = [],
+                SubmitedAt = DateTime.UtcNow,
+                Status = SocialsClaimStatus.Pending
             });
 
             //_ = _databaseService.ApproveSubmitedSocialsToken(model.TokenAddress);
@@ -113,10 +115,32 @@ namespace Meme.Hub.Site.Api.Controllers
             return Ok("Form submitted successfully!");
         }
 
-        [HttpGet("approve-socials/{addr}")]
-        public async Task<ActionResult> ApproveSocials(string addr)
+        [HttpGet("user-pending-tokenclaims")]
+        [Authorize()]
+        public async Task<ActionResult> UserPendingSocialClaims()
         {
-            _ = _databaseService.ApproveSubmitedSocialsToken(addr);
+            var userId = GetRequestUserId();
+            var claims = await _databaseService.GetUserPendingSocialsClaims(userId);
+
+            return Ok(claims);
+        }
+
+        [HttpGet("pending-tokenclaims/{claimId}")]
+        public async Task<ActionResult> GetPendingSocialClaims(string claimId)
+        {
+            var userId = GetRequestUserId();
+            var claims = await _databaseService.GetTokenSocialsClaimById(claimId);
+
+            return Ok(claims);
+        }
+
+        [HttpPost("approve-tokensocialsclaim/{id}")]
+        public async Task<ActionResult> ApproveSocials(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return BadRequest();
+
+            var userId = GetRequestUserId();
+            var response = await _databaseService.ApproveSubmitedSocialsToken(id, userId);
 
             return Ok("approved successfully!");
         }

@@ -7,7 +7,7 @@ namespace Meme.Hub.Site.Api
     {
         public MappingProfile()
         {
-            CreateMap<SubmitSocialsClaimModel, ApprovedSocialsModel>();
+            //CreateMap<SocialsClaimModel, ApprovedSocialsModel>();
             // Add more mappings here
         }
     }

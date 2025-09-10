@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using Amazon;
+using AutoMapper;
 using Meme.Domain.Models;
 using Meme.Domain.Models.TokenModels;
 using Meme.Hub.Site.Models;
+using Meme.Hub.Site.Models.ProfileModels;
 using Meme.Hub.Site.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -13,8 +15,7 @@ namespace Meme.Hub.Site.Services
         private readonly MongoClient _client;
         private readonly IMongoDatabase _database;
         private readonly string _collectionName;
-        private readonly string _submitSocialsColName = $"{nameof(SubmitSocialsClaimModel)}s";
-        private readonly string _approvedSocialsColName = $"{nameof(ApprovedSocialsModel)}s";
+        private readonly string _submitSocialsColName = $"{nameof(SocialsClaimModel)}s";
         private readonly IMapper _mapper;
 
         public CosmosDBService(IOptions<MongoSettings> settings, IMapper mapper)
@@ -32,30 +33,48 @@ namespace Meme.Hub.Site.Services
             return await items.FirstOrDefaultAsync();
         }
 
-        public async Task<bool> SaveSubmitedSocialsToken(SubmitSocialsClaimModel submitTokenClaim)
+        public async Task<bool> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim)
         {
             submitTokenClaim.Id = Guid.NewGuid().ToString("N");
-            await _database.GetCollection<SubmitSocialsClaimModel>(_submitSocialsColName).InsertOneAsync(submitTokenClaim);
+            await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).InsertOneAsync(submitTokenClaim);
             return true;
         }
 
-        public async Task<bool> ApproveSubmitedSocialsToken(string tokenAddress)
+        public async Task<IEnumerable<SocialsClaimModel>?> GetUserPendingSocialsClaims(string userId)
         {
-            var submittedSocials = await ( await _database.GetCollection<SubmitSocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.TokenAddress == tokenAddress)).FirstOrDefaultAsync();
+            var collection = _database.GetCollection<SocialsClaimModel>(_submitSocialsColName);
+            var submittedClaims = await (await collection.FindAsync(x => x.UserId == userId && x.Status == SocialsClaimStatus.Pending)).ToListAsync();
+            return submittedClaims;
+        }
 
-            if(submittedSocials == null) return false;
+        public async Task<bool> ApproveSubmitedSocialsToken(string id, string approverUserId)
+        {
+            var collection = _database.GetCollection<SocialsClaimModel>(_submitSocialsColName);
+            
+            var submittedClaim = collection.Find(x => x.Id == id).FirstOrDefault();
+            if (submittedClaim == null) return false;
 
-            var approved = _mapper.Map<ApprovedSocialsModel>(submittedSocials);
-            if (approved == null) return false;
+            submittedClaim.Approvers ??= [];
+            if(!submittedClaim.Approvers.Any(x => x.UserId == approverUserId))
+            {
+                submittedClaim.Approvers.Add(new Approval
+                {
+                    UserId = approverUserId,
+                    ApprovedAt = DateTime.UtcNow,
+                });
+            }
 
-            await _database.GetCollection<ApprovedSocialsModel>(_approvedSocialsColName).InsertOneAsync(approved);
+            var filter = Builders<SocialsClaimModel>.Filter.Eq(u => u.TokenAddress, id);
+            var update = Builders<SocialsClaimModel>.Update.Set(u => u.Approvers, submittedClaim.Approvers);
+
+            _ = await collection.UpdateOneAsync(filter, update);
 
             return true;
         }
 
-        public async Task<ApprovedSocialsModel> GetSocialsByAddress(string tokenAddress)
+        public async Task<SocialsClaimModel> GetTokenSocialsClaimById(string claimId)
         {
-            return (await _database.GetCollection<ApprovedSocialsModel>(_approvedSocialsColName).FindAsync(x => x.TokenAddress == tokenAddress)).FirstOrDefault();
+            return (await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.Id == claimId)).FirstOrDefault();
         }
     }
 }
