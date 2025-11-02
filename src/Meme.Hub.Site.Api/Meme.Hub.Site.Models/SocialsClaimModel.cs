@@ -1,7 +1,10 @@
 ﻿using Meme.Domain.Models.TokenModels;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Meme.Hub.Site.Models
 {
+    // ignore mongo missing property
+    [BsonIgnoreExtraElements]
     public class SocialsClaimModel
     {
         public string Id { get; set; }

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="meme.domain.models" Version="1.0.14" />
+    <PackageReference Include="MongoDB.Bson" Version="3.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
