@@ -66,26 +66,22 @@ namespace Meme.Hub.Site.Api.Controllers
         [Authorize()]
         public async Task<ActionResult> SubmitSocials([FromForm] SubmitSocialsRequestModel model)
         {
-
-            var bannerStoragePath = "";
-            long size = 0;
-            var fileName = "";
-
-            if (model.ProfileImageFile != null && model.ProfileImageFile.Length > 0)
+            if (!ModelState.IsValid)
             {
-                bool isImageFile = allowedImageFileExt.Contains(model.ProfileImageFile.ContentType);
-                if (!isImageFile)
-                {
-                    return BadRequest($"{model.ProfileImageFile.ContentType} Not allowed");
-                }
+                return BadRequest(ModelState);
+            }
 
-                size = model.ProfileImageFile.Length;
-                if (model.ProfileImageFile.Length > 0)
-                {
-                    fileName = model.ProfileImageFile.FileName.ToLowerInvariant();
-                    await using var stream = model.ProfileImageFile.OpenReadStream();
-                    bannerStoragePath = await _storageService.UploadAsync(model.TokenAddress, fileName, stream);
-                }
+            var bannerStoragePath = string.Empty;
+            var logoStoragePath = string.Empty;
+
+            try
+            {
+                bannerStoragePath = await UploadTokenImage(model.TokenAddress, model.ProfileImageFile);
+                logoStoragePath = await UploadTokenImage(model.TokenAddress, model.ProfileLogoImageFile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
             _ = _databaseService.SaveSubmitedSocialsToken(new SocialsClaimModel
@@ -104,6 +100,7 @@ namespace Meme.Hub.Site.Api.Controllers
                 Twitter = model.Twitter,
                 Website = model.Website,
                 BannerUrl = bannerStoragePath,
+                LogoUrl = logoStoragePath,
                 TokenData = await _cacheService.GetTokenData(model.TokenAddress),
                 Approvers = [],
                 SubmitedAt = DateTime.UtcNow,
@@ -113,6 +110,28 @@ namespace Meme.Hub.Site.Api.Controllers
             //_ = _databaseService.ApproveSubmitedSocialsToken(model.TokenAddress);
 
             return Ok("Form submitted successfully!");
+        }
+
+        private async Task<string> UploadTokenImage(string tokenAddress, IFormFile imageFile)
+        {
+            var bannerStoragePath = "";
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                bool isImageFile = allowedImageFileExt.Contains(imageFile.ContentType);
+                if (!isImageFile)
+                {
+                    throw new Exception($"{imageFile.ContentType} Not allowed");
+                }
+
+                if (imageFile.Length > 0)
+                {
+                    var fileName = imageFile.FileName.ToLowerInvariant();
+                    await using var stream = imageFile.OpenReadStream();
+                    bannerStoragePath = await _storageService.UploadAsync(tokenAddress, fileName, stream);
+                }
+            }
+
+            return bannerStoragePath;
         }
 
         [HttpGet("user-pending-tokenclaims")]

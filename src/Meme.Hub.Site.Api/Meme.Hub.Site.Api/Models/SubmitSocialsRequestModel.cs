@@ -16,5 +16,6 @@
         public string DiscordUsername { get; set; }
         public string TelegramUsername { get; set; }
         public IFormFile ProfileImageFile { get; set; } // File upload
+        public IFormFile ProfileLogoImageFile { get; set; } // File upload
     }
 }

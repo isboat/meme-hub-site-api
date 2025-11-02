@@ -19,6 +19,7 @@ namespace Meme.Hub.Site.Models
         public string DiscordUsername { get; set; }
         public string TelegramUsername { get; set; }
         public string BannerUrl { get; set; }
+        public string LogoUrl { get; set; }
         public TokenDataModel TokenData { get; set; }
         public List<Approval> Approvers { get; set; }
         public DateTime SubmitedAt { get; set; }
