@@ -12,6 +12,9 @@ namespace Meme.Hub.Site.Services.Interfaces
         Task<IEnumerable<SocialsClaimModel>?> GetUserPendingSocialsClaims(string userId);
 
         Task<bool> ApproveSubmitedSocialsToken(string tokenAddress, string approverUserId);
+
         Task<SocialsClaimModel> GetTokenSocialsClaimById(string claimId);
+
+        Task<SocialsClaimModel> GetTokenSocialsClaimByTokenAddress(string claimId);
     }
 }

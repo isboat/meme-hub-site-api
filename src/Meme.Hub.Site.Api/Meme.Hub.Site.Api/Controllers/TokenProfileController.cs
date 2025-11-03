@@ -57,7 +57,7 @@ namespace Meme.Hub.Site.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(tokenAddress)) return BadRequest();
 
-            var dbEleme = await _databaseService.GetTokenSocialsClaimById(tokenAddress);
+            var dbEleme = await _databaseService.GetTokenSocialsClaimByTokenAddress(tokenAddress);
 
             return new OkObjectResult(dbEleme);
         }

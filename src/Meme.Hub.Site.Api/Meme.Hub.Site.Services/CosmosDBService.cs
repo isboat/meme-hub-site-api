@@ -76,5 +76,10 @@ namespace Meme.Hub.Site.Services
         {
             return (await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.Id == claimId)).FirstOrDefault();
         }
+
+        public async Task<SocialsClaimModel> GetTokenSocialsClaimByTokenAddress(string tokenAddress)
+        {
+            return (await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).FindAsync(x => x.TokenAddress == tokenAddress)).FirstOrDefault();
+        }
     }
 }
