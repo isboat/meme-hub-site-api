@@ -16,5 +16,7 @@ namespace Meme.Hub.Site.Services.Interfaces
         Task<SocialsClaimModel> GetTokenSocialsClaimById(string claimId);
 
         Task<SocialsClaimModel> GetTokenSocialsClaimByTokenAddress(string claimId);
+
+        Task<IEnumerable<SocialsClaimModel>?> GetSocialClaims();
     }
 }

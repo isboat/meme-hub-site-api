@@ -52,6 +52,13 @@ namespace Meme.Hub.Site.Api.Controllers
             }
         }
 
+        [HttpGet("socials")]
+        public async Task<IActionResult> GetSocials()
+        {
+            var socials = await _databaseService.GetSocialClaims();
+            return new OkObjectResult(socials);
+        }
+
         [HttpGet("socials/{tokenAddress}")]
         public async Task<IActionResult> GetSocials(string tokenAddress)
         {

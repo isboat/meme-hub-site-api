@@ -47,6 +47,13 @@ namespace Meme.Hub.Site.Services
             return submittedClaims;
         }
 
+        public async Task<IEnumerable<SocialsClaimModel>?> GetSocialClaims()
+        {
+            var collection = _database.GetCollection<SocialsClaimModel>(_submitSocialsColName);
+            var claims = await(await collection.FindAsync(x => x.Status == SocialsClaimStatus.Pending || x.Status == SocialsClaimStatus.Approved)).ToListAsync();
+            return claims;
+        }
+
         public async Task<bool> ApproveSubmitedSocialsToken(string id, string approverUserId)
         {
             var collection = _database.GetCollection<SocialsClaimModel>(_submitSocialsColName);
