@@ -40,6 +40,7 @@ namespace Meme.Hub.Site.Models
     {
         Pending,
         Approved,
-        Cancelled
+        Cancelled,
+        NotYetSet
     }
 }

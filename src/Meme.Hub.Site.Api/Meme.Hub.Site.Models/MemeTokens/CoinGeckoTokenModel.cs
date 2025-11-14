@@ -9,6 +9,7 @@ namespace Meme.Hub.Site.Models.MemeTokens
         public string Marketcap { get; set; }
         public string Price { get; set; }
         public string LogoURI { get; set; }
+        public SocialsClaimStatus Status { get; set; }
 
         public TokenAddressDto AddressDto { get; set; }
     }

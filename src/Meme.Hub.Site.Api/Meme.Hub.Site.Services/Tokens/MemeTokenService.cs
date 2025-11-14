@@ -10,10 +10,12 @@ namespace Meme.Hub.Site.Services.Tokens
     public class MemeTokenService : IMemeTokenService
     {
         private readonly ITokenDataProvider _tokenDataProvider;
+        private readonly IDatabaseService _databaseService;
 
-        public MemeTokenService(ITokenDataProvider tokenDataProvider)
+        public MemeTokenService(ITokenDataProvider tokenDataProvider, IDatabaseService databaseService)
         {
             _tokenDataProvider = tokenDataProvider;
+            _databaseService = databaseService;
         }
 
         public Task<JsonObject> GetCoinDataByIdAsync(string coinId)
@@ -21,9 +23,15 @@ namespace Meme.Hub.Site.Services.Tokens
             return _tokenDataProvider.GetCoinDataByIdAsync(coinId);
         }
 
-        public Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network)
+        public async Task<IEnumerable<CoinGeckoTokenModel>> GetCoinsByNetwork(string network)
         {
-            return _tokenDataProvider.GetCoinsByNetwork(network);
+            var tokens = await _tokenDataProvider.GetCoinsByNetwork(network);
+            if (tokens != null)
+            {
+                await UpdateTokenDetails(tokens);
+            }
+
+            return tokens;
         }
 
         public Task<IEnumerable<TokenNetworkModel>> GetTokenNetworks()
@@ -36,9 +44,27 @@ namespace Meme.Hub.Site.Services.Tokens
             return _tokenDataProvider.GetTrendingTokens();
         }
 
-        public Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search)
+        public async Task<IEnumerable<CoinGeckoTokenModel>> SearchCoin(string search)
         {
-            return _tokenDataProvider.SearchCoin(search);
+            var tokens = await _tokenDataProvider.SearchCoin(search);
+            if (tokens != null)
+            {
+                await UpdateTokenDetails(tokens);
+            }
+
+            return tokens;
+        }
+
+        private async Task UpdateTokenDetails(IEnumerable<CoinGeckoTokenModel> tokens)
+        {
+            if (tokens != null)
+            {
+                foreach (var token in tokens)
+                {
+                    var tokenSocials = await _databaseService.GetTokenSocialsClaimByTokenAddress(token.Address);
+                    token.Status = tokenSocials != null ? tokenSocials.Status : Models.SocialsClaimStatus.NotYetSet;
+                }
+            }
         }
     }
 }
