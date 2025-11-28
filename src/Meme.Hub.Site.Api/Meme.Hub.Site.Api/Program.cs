@@ -22,6 +22,9 @@ namespace Meme.Hub.Site.Api
             builder.Services.Configure<MongoSettings>(
                 builder.Configuration.GetSection("MongoSettings"));
 
+            builder.Services.Configure<TwitterOAuthSettings>(
+                builder.Configuration.GetSection("TwitterOAuth"));
+
             builder.Services.Configure<S3Settings>(
                 builder.Configuration.GetSection("S3Settings"));
 
