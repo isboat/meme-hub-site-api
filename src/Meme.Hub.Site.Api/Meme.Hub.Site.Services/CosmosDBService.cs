@@ -33,13 +33,13 @@ namespace Meme.Hub.Site.Services
             return await items.FirstOrDefaultAsync();
         }
 
-        public async Task<bool> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim)
+        public async Task<string> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim)
         {
             // MTH12345
-            var id = GenerateId();
-            submitTokenClaim.Id = $"MTH{id}";
+            var id =  $"MTH{GenerateId()}";
+            submitTokenClaim.Id = id;
             await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).InsertOneAsync(submitTokenClaim);
-            return true;
+            return id;
         }
 
         private static string GenerateId()

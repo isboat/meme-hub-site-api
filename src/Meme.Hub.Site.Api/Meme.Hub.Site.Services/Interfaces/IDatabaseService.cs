@@ -7,7 +7,7 @@ namespace Meme.Hub.Site.Services.Interfaces
     {
         Task<TokenDataModel> GetTokenData(string tokenAddress);
 
-        Task<bool> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim);
+        Task<string> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim);
 
         Task<IEnumerable<SocialsClaimModel>?> GetUserPendingSocialsClaims(string userId);
 

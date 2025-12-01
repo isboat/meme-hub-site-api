@@ -91,7 +91,7 @@ namespace Meme.Hub.Site.Api.Controllers
                 return BadRequest(ex.Message);
             }
 
-            _ = _databaseService.SaveSubmitedSocialsToken(new SocialsClaimModel
+            var id = _databaseService.SaveSubmitedSocialsToken(new SocialsClaimModel
             {
                 UserId = model.UserId,
                 Description = model.Description,
@@ -114,9 +114,7 @@ namespace Meme.Hub.Site.Api.Controllers
                 Status = SocialsClaimStatus.Pending
             });
 
-            //_ = _databaseService.ApproveSubmitedSocialsToken(model.TokenAddress);
-
-            return Ok("Form submitted successfully!");
+            return Ok(new { Id = id});
         }
 
         private async Task<string> UploadTokenImage(string tokenAddress, IFormFile imageFile)
