@@ -35,9 +35,17 @@ namespace Meme.Hub.Site.Services
 
         public async Task<bool> SaveSubmitedSocialsToken(SocialsClaimModel submitTokenClaim)
         {
-            submitTokenClaim.Id = Guid.NewGuid().ToString("N");
+            // MTH12345
+            var id = GenerateId();
+            submitTokenClaim.Id = $"MTH{id}";
             await _database.GetCollection<SocialsClaimModel>(_submitSocialsColName).InsertOneAsync(submitTokenClaim);
             return true;
+        }
+
+        private static string GenerateId()
+        {
+            var currenttime = DateTime.UtcNow;
+            return $"{currenttime.Millisecond}{currenttime.Microsecond}";
         }
 
         public async Task<IEnumerable<SocialsClaimModel>?> GetUserPendingSocialsClaims(string userId)
