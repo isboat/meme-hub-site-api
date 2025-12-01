@@ -145,6 +145,7 @@ namespace Meme.Hub.Site.Api.Controllers
         {
             var userId = GetRequestUserId();
             var claims = await _databaseService.GetUserPendingSocialsClaims(userId);
+            if (claims == null || !claims.Any()) return NotFound();
 
             return Ok(claims);
         }
@@ -152,8 +153,9 @@ namespace Meme.Hub.Site.Api.Controllers
         [HttpGet("pending-tokenclaims/{claimId}")]
         public async Task<ActionResult> GetPendingSocialClaims(string claimId)
         {
-            var userId = GetRequestUserId();
             var claims = await _databaseService.GetTokenSocialsClaimById(claimId);
+            if (claims == null)
+                return NotFound();
 
             return Ok(claims);
         }
